@@ -82,7 +82,7 @@ const deleteItem = (item) => {
       <table class="table w-full border-collapse border border-gray-300">
         <!-- Head -->
         <thead>
-          <tr class="">
+          <tr class="bg-base-300">
             <th>#</th>
             <th>Name</th>
             <th>Email</th>
@@ -94,7 +94,7 @@ const deleteItem = (item) => {
           <tr
             v-for="item in paginatedItems"
             :key="item.email"
-            class="hover:bg-base-300"
+            class="hover:bg-base-200"
           >
             <td>{{ item.count }}</td>
             <td>{{ item.name }}</td>
