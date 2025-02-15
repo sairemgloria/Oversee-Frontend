@@ -13,17 +13,31 @@ const admins = ref([]);
 
 // Function to fetch all admins from the backend API
 const fetchAdmins = async () => {
+  loading.value = true;
+  error.value = null; // Reset error message before fetching
+
   try {
     const response = await axios.get("http://localhost:3000/api/admins/");
-    // console.log("API Response:", response.data); // Log API response
-    admins.value = response.data.data;
+    
+    // Handle response if no admins are found
+    if (!response.data.success) {
+      error.value = response.data.message; // Display API message
+      admins.value = []; // Ensure the admins array is empty
+      return;
+    }
+
+    admins.value = response.data.data; // Set data if admins exist
   } catch (err) {
-    console.error("Error fetching admins:", err);
-    error.value = "Failed to load admins. Please try again.";
+    if (err.response && err.response.status === 404) {
+      error.value = err.response.data.message; // Display "No admin found"
+    } else {
+      error.value = "Failed to load admins. Please try again.";
+    }
   } finally {
     loading.value = false; // Ensure loading is set to false after fetching data
   }
 };
+
 
 // Fetch admins when the component is mounted
 onMounted(fetchAdmins);
