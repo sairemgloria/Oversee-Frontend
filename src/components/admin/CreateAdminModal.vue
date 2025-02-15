@@ -18,11 +18,20 @@
         />
 
         <div class="label">
+          <span class="label-text">Email</span>
+        </div>
+        <input
+          type="email"
+          placeholder="sample@email.com"
+          class="input input-bordered w-full mb-2"
+        />
+
+        <div class="label">
           <span class="label-text">Password</span>
         </div>
         <input
           type="password"
-          placeholder="Type here"
+          placeholder="********"
           class="input input-bordered w-full mb-2"
         />
 
