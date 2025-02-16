@@ -2,6 +2,10 @@
 import { reactive, inject } from "vue";
 import axios from "axios";
 
+defineOptions({
+  inheritAttrs: false,
+});
+
 const swal = inject("$swal");
 
 const admins = reactive({
@@ -68,12 +72,23 @@ const createAdmin = async () => {
     /* Reset form fields */
     Object.keys(admins).forEach((key) => (admins[key] = ""));
   } catch (error) {
+    let errorMessage = "Something went wrong!";
+
+    /* Check if the error has a response from the backend */
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = error.response.data.message; // Get message from API
+    }
+
+    /* Show the validation message in SweetAlert */
     swal.fire({
       position: "top-end",
       icon: "error",
       title: "Oops...",
-      text: "Something went wrong!",
+      text: errorMessage,
     });
+
+    /* Close the modal */
+    closeModal();
   }
 };
 </script>
