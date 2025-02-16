@@ -25,7 +25,10 @@ const validationErrors = reactive({
 /* Function to Open the Modal */
 const openModal = () => {
   // Clear previous validation errors
-  Object.keys(validationErrors).forEach((key) => (validationErrors[key] = ""));
+  for (let key in validationErrors) {
+    validationErrors[key] = "";
+  }
+
   // Open modal
   document.getElementById("my_modal_1").showModal();
 };
@@ -38,7 +41,9 @@ const closeModal = () => {
 /* Create Admin */
 const createAdmin = async () => {
   /* Clear Previous Errors */
-  Object.keys(validationErrors).forEach((key) => (validationErrors[key] = ""));
+  for (let key in validationErrors) {
+    validationErrors[key] = "";
+  }
 
   /* Check for Missing Fields */
   if (!admins.name.trim()) validationErrors.name = "Name is required.";
@@ -49,13 +54,18 @@ const createAdmin = async () => {
     validationErrors.type = "Role selection is required.";
 
   /* Stop form submission if there are validation errors */
-  if (Object.values(validationErrors).some((error) => error)) {
-    return;
+  for (let key in validationErrors) {
+    if (validationErrors[key]) return;
   }
 
   try {
     /* Send data to backend */
-    await axios.post(`http://localhost:3000/api/admins/`, { ...admins });
+    await axios.post("http://localhost:3000/api/admins/", {
+      name: admins.name,
+      email: admins.email,
+      password: admins.password,
+      type: admins.type,
+    });
 
     /* Show success notification */
     swal.fire({
@@ -70,16 +80,18 @@ const createAdmin = async () => {
     closeModal();
 
     /* Reset form fields */
-    Object.keys(admins).forEach((key) => (admins[key] = ""));
+    for (let key in admins) {
+      admins[key] = "";
+    }
   } catch (error) {
     let errorMessage = "Something went wrong!";
 
     /* Check if the error has a response from the backend */
-    if (error.response && error.response.data && error.response.data.message) {
-      errorMessage = error.response.data.message; // Get message from API
+    if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
     }
 
-    /* Show the validation message in SweetAlert */
+    /* Show the validation message */
     swal.fire({
       position: "top-end",
       icon: "error",
