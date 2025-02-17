@@ -35,6 +35,11 @@ const fetchAdmins = async () => {
 
 onMounted(fetchAdmins);
 
+/* Add new admin dynamically */
+const addNewAdmin = (newAdmin) => {
+  admins.value.push(newAdmin); // Add new admin at the bottom of the list
+};
+
 /* Use filtering */
 const { searchQuery, filteredItems } = useFilter(admins, ["name", "email"]);
 
@@ -55,7 +60,7 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
 
   <div class="p-4">
     <div class="flex flex-col md:flex-row gap-4 justify-between mb-4">
-      <CreateAdminModal class="mb-2 md:mb-0" />
+      <CreateAdminModal @adminAdded="addNewAdmin" class="mb-2 md:mb-0" />
       <SearchBar v-model="searchQuery" />
     </div>
 
