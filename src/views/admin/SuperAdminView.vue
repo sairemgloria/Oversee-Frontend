@@ -26,7 +26,8 @@ const fetchAdmins = async () => {
     }
     admins.value = response.data.data;
   } catch (err) {
-    error.value = err.response?.data?.message || "Failed to load admins.";
+    // This will display message if the backend api endpoint is not available.
+    error.value = err.response?.data?.message || "Error: Failed to load admins.";
   } finally {
     loading.value = false;
   }
