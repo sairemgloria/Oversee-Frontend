@@ -128,7 +128,7 @@ const createAdmin = async () => {
           placeholder="Type here"
           class="input input-bordered w-full mb-1"
         />
-        <p v-if="validationErrors.name" class="text-red-500 text-sm">
+        <p v-if="validationErrors.name" class="text-red-500 text-xs">
           {{ validationErrors.name }}
         </p>
 
@@ -142,7 +142,7 @@ const createAdmin = async () => {
           placeholder="sample@email.com"
           class="input input-bordered w-full mb-1"
         />
-        <p v-if="validationErrors.email" class="text-red-500 text-sm">
+        <p v-if="validationErrors.email" class="text-red-500 text-xs">
           {{ validationErrors.email }}
         </p>
 
@@ -156,7 +156,7 @@ const createAdmin = async () => {
           placeholder="********"
           class="input input-bordered w-full mb-1"
         />
-        <p v-if="validationErrors.password" class="text-red-500 text-sm">
+        <p v-if="validationErrors.password" class="text-red-500 text-xs">
           {{ validationErrors.password }}
         </p>
 
@@ -172,7 +172,7 @@ const createAdmin = async () => {
           <option>Superadmin</option>
           <option>IT Department</option>
         </select>
-        <p v-if="validationErrors.type" class="text-red-500 text-sm">
+        <p v-if="validationErrors.type" class="text-red-500 text-xs">
           {{ validationErrors.type }}
         </p>
 
