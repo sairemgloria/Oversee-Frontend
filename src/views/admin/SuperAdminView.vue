@@ -95,7 +95,12 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
             <td>{{ admin.name }}</td>
             <td>{{ admin.email }}</td>
             <td class="flex flex-col md:flex-row gap-2">
-              <button class="text-blue-500">View</button>
+              <RouterLink
+                :to="{ name: 'view-admin', params: { id: admin._id } }"
+                class="text-blue-500"
+              >
+                View
+              </RouterLink>
               <button class="text-yellow-500">Edit</button>
               <button class="text-red-500">Delete</button>
             </td>

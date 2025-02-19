@@ -17,6 +17,11 @@ const routes = [
     name: "Superadmin",
     component: () => import("@/views/admin/SuperAdminView.vue"),
   },
+  {
+    path: "/view-admin/:id",
+    name: "view-admin",
+    component: () => import("@/views/admin/ViewSelectedAdmin.vue"),
+  },
 
   /* 404 - Page Not Found */
   {

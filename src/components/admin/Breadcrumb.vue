@@ -59,6 +59,9 @@ const currentRouteName = computed(() => useRoute().name);
       <li v-if="currentRouteName === 'Superadmin'">
         <p class="block transition hover:text-gray-400">Superadmin</p>
       </li>
+      <li v-if="currentRouteName === 'view-admin'">
+        <p class="block transition hover:text-gray-400">View Admin</p>
+      </li>
       <!-- Add more dynamic breadcrumb items here based on routes -->
     </ol>
   </nav>
