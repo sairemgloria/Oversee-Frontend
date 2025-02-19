@@ -26,8 +26,8 @@ const fetchAdmins = async () => {
     }
     admins.value = response.data.data;
   } catch (err) {
-    // This will display message if the backend api endpoint is not available.
-    error.value = err.response?.data?.message || "Error: Failed to load admins.";
+    error.value =
+      err.response?.data?.message || "Error: Failed to load admins.";
   } finally {
     loading.value = false;
   }
@@ -35,9 +35,17 @@ const fetchAdmins = async () => {
 
 onMounted(fetchAdmins);
 
-/* Add new admin dynamically */
-const addNewAdmin = (newAdmin) => {
-  admins.value.push(newAdmin); // Add new admin at the bottom of the list
+/* Function to add a new admin and update the list */
+const addNewAdmin = async (newAdmin) => {
+  // Add the new admin to the list
+  admins.value.push(newAdmin);
+
+  // Fetch updated data from the backend
+  try {
+    await fetchAdmins();
+  } catch (error) {
+    console.error("Failed to update admin list:", error);
+  }
 };
 
 /* Use filtering */
@@ -49,7 +57,7 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="p-6">
     <div class="mb-4">
       <h1 class="text-3xl font-bold flex items-center">Superadmin</h1>
     </div>
@@ -58,7 +66,7 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
     <hr class="mt-6" />
   </div>
 
-  <div class="p-4">
+  <div class="p-2 md:p-6">
     <div class="flex flex-col md:flex-row gap-4 justify-between mb-4">
       <CreateAdminModal @adminAdded="addNewAdmin" class="mb-2 md:mb-0" />
       <SearchBar v-model="searchQuery" />
@@ -68,9 +76,10 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
       <!-- Use the reusable component for loading and error handling -->
       <LoadingError :loading="loading" :error="error" />
 
+      <!-- datatable -->
       <table
         class="table w-full border-collapse border border-gray-300"
-        v-if="!loading && !error && admins.length > 0"
+        v-if="!loading && !error"
       >
         <thead>
           <tr class="bg-base-300">
@@ -80,29 +89,30 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="filteredItems.length > 0">
           <tr v-for="(admin, index) in paginatedItems" :key="admin.id">
             <td>{{ (currentPage - 1) * 5 + index + 1 }}</td>
             <td>{{ admin.name }}</td>
             <td>{{ admin.email }}</td>
-            <td class="flex gap-2">
+            <td class="flex flex-col md:flex-row gap-2">
               <button class="text-blue-500">View</button>
               <button class="text-yellow-500">Edit</button>
               <button class="text-red-500">Delete</button>
             </td>
           </tr>
         </tbody>
+        <tbody v-else>
+          <tr>
+            <td colspan="4" class="text-center py-4">No record found.</td>
+          </tr>
+        </tbody>
       </table>
 
-      <div
-        v-if="!loading && !error && admins.length === 0"
-        class="text-xl font-bold text-center py-4"
-      >
-        No admins found.
-      </div>
-
       <!-- Pagination -->
-      <div class="flex justify-center mt-4 md:justify-end">
+      <div
+        v-if="admins.length > 0"
+        class="flex justify-center my-4 md:justify-end my-8"
+      >
         <button
           @click="prevPage"
           :disabled="currentPage === 1"
