@@ -111,6 +111,14 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
             <td colspan="4" class="text-center py-4">No record found.</td>
           </tr>
         </tbody>
+        <tfoot>
+          <tr class="bg-base-300">
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </tfoot>
       </table>
 
       <!-- Pagination -->
