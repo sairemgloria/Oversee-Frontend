@@ -94,15 +94,25 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
             <td>{{ (currentPage - 1) * 5 + index + 1 }}</td>
             <td>{{ admin.name }}</td>
             <td>{{ admin.email }}</td>
-            <td class="flex flex-col md:flex-row gap-2">
+            <td class="flex flex-col justify-start md:flex-row gap-2 items-center">
               <RouterLink
                 :to="{ name: 'view-admin', params: { id: admin._id } }"
-                class="text-blue-500"
+                class="font-bold text-blue-500"
               >
                 View
               </RouterLink>
-              <button class="text-yellow-500">Edit</button>
-              <button class="text-red-500">Delete</button>
+              <RouterLink
+                :to="{ name: 'view-admin', params: { id: admin._id } }"
+                class="font-bold text-yellow-500"
+              >
+                Edit
+              </RouterLink>
+              <RouterLink
+                :to="{ name: 'view-admin', params: { id: admin._id } }"
+                class="font-bold text-red-500"
+              >
+                Delete
+              </RouterLink>
             </td>
           </tr>
         </tbody>
