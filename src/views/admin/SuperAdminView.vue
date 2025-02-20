@@ -102,7 +102,7 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
                 View
               </RouterLink>
               <RouterLink
-                :to="{ name: 'view-admin', params: { id: admin._id } }"
+                :to="{ name: 'edit-admin', params: { id: admin._id } }"
                 class="font-bold text-yellow-500"
               >
                 Edit
