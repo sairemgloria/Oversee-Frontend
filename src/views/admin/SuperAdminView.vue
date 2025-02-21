@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, inject } from "vue";
 import axios from "axios";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 import CreateAdminModal from "@/components/admin/CreateAdminModal.vue";
@@ -7,6 +7,8 @@ import SearchBar from "@/components/admin/SearchBar.vue";
 import useFilter from "@/composables/useFilter";
 import usePagination from "@/composables/usePagination";
 import LoadingError from "@/components/admin/common/LoadingError.vue";
+
+const swal = inject("$swal"); // Sweetalert2
 
 const loading = ref(true);
 const error = ref(null);
@@ -56,6 +58,33 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
+
+const deleteAdmin = async (id) => {
+  try {
+    const result = await swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this admin?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      await axios.delete(`http://localhost:3000/api/admins/${id}`);
+
+      await fetchAdmins(); // Refetch admins from the API
+
+      currentPage.value = 1; // Reset pagination to first page
+
+      swal.fire("Deleted!", "The admin has been deleted.", "success");
+    }
+  } catch (err) {
+    console.error("Delete error:", err.response?.data || err.message);
+    swal.fire("Error!", "Failed to delete the admin.", "error");
+  }
+};
 </script>
 
 <template>
@@ -111,12 +140,13 @@ watch(searchQuery, () => {
               >
                 Edit
               </RouterLink>
-              <RouterLink
-                :to="{ name: 'view-admin', params: { id: admin._id } }"
+              <a
+                href="#"
+                @click.prevent="deleteAdmin(admin._id)"
                 class="font-bold text-red-500"
               >
                 Delete
-              </RouterLink>
+              </a>
             </td>
           </tr>
         </tbody>
