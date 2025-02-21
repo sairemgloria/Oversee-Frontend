@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 import CreateAdminModal from "@/components/admin/CreateAdminModal.vue";
@@ -48,12 +48,14 @@ const addNewAdmin = async (newAdmin) => {
   }
 };
 
-/* Use filtering */
 const { searchQuery, filteredItems } = useFilter(admins, ["name", "email"]);
-
-/* Use pagination */
 const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
-  usePagination(filteredItems);
+  usePagination(filteredItems); // Apply pagination AFTER filtering
+
+// Reset to page 1 when search changes to avoid missing results
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
 </script>
 
 <template>
@@ -66,7 +68,7 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
     <hr class="mt-6" />
   </div>
 
-  <div class="p-2 md:p-6">
+  <div class="px-6">
     <div class="flex flex-col md:flex-row gap-4 justify-between mb-4">
       <CreateAdminModal @adminAdded="addNewAdmin" class="mb-2 md:mb-0" />
       <SearchBar v-model="searchQuery" />
@@ -94,7 +96,9 @@ const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
             <td>{{ (currentPage - 1) * 5 + index + 1 }}</td>
             <td>{{ admin.name }}</td>
             <td>{{ admin.email }}</td>
-            <td class="flex flex-col justify-start md:flex-row gap-2 items-center">
+            <td
+              class="flex flex-col justify-start md:flex-row gap-2 items-center"
+            >
               <RouterLink
                 :to="{ name: 'view-admin', params: { id: admin._id } }"
                 class="font-bold text-blue-500"

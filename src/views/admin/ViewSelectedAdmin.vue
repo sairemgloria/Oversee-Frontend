@@ -62,18 +62,28 @@ onMounted(fetchAdmin);
     <hr class="mt-6" />
 
     <!-- Show loading state -->
-    <p v-if="loading" class="text-xl text-gray-500">Fetching data...</p>
+    <p v-if="loading" class="text-3xl pt-6 text-gray-500">Fetching data...</p>
 
     <!-- Show error messages (Invalid ID, Not Found, or Server Error) -->
-    <p v-else-if="error" class="text-2xl text-red-700">{{ error }}</p>
+    <p v-else-if="error" class="text-3xl pt-6 text-red-700">{{ error }}</p>
 
     <!-- Show admin details if fetched successfully -->
-    <div v-else class="pt-8">
-      <h1 class="text-3xl">Profile Information</h1>
+    <div v-else class="pt-6">
+      <h1 class="text-3xl pb-2">Profile Information</h1>
       <p class="text-xl"><strong>Name:</strong> {{ admin.name }}</p>
       <p class="text-xl"><strong>Email:</strong> {{ admin.email }}</p>
       <p class="text-xl"><strong>Password:</strong> {{ admin.password }}</p>
       <p class="text-xl"><strong>Account Type:</strong> {{ admin.type }}</p>
+
+      <!-- Buttons -->
+      <div class="flex justify-start space-x-2 mt-4">
+        <RouterLink
+          :to="{ name: 'Superadmin' }"
+          class="btn bg-neutral text-white"
+        >
+          Go back
+        </RouterLink>
+      </div>
     </div>
   </div>
 </template>
