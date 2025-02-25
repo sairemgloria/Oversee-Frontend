@@ -94,7 +94,7 @@ const emit = defineEmits(["toggle-sidebar"]);
             <ul class="mt-2 space-y-1 px-4">
               <li>
                 <RouterLink
-                  to=""
+                  :to="{ name: 'Department-Admin' }"
                   class="block rounded px-4 py-3 text-sm font-medium text-gray-400 hover:text-gray-200 hover:bg-gray-500"
                 >
                   Department Admin
