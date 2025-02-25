@@ -2,16 +2,19 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   /* Admin Routes */
+  /* Dashboard Section */
   {
     path: "/dashboard",
     name: "AdminDashboard",
     component: () => import("@/views/admin/DashboardView.vue"),
   },
+  /* Employee Section */
   {
     path: "/employees",
     name: "Employees",
     component: () => import("@/views/admin/EmployeesView.vue"),
   },
+  /* Administrator Section */
   {
     path: "/superadmin",
     name: "Superadmin",
@@ -26,6 +29,16 @@ const routes = [
     path: "/edit-admin/:id",
     name: "edit-admin",
     component: () => import("@/views/admin/EditSelectedAdmin.vue"),
+  },
+  {
+    path: "/department-admin",
+    name: "Department-Admin",
+    component: () => import("@/views/admin/DepartmentAdminView.vue"),
+  },
+  {
+    path: "/view-department-admin/:id",
+    name: "view-department-admin",
+    component: () => import("@/views/admin/ViewSelectedDepartmentAdmin.vue"),
   },
 
   /* 404 - Page Not Found */
