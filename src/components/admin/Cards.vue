@@ -1,4 +1,37 @@
 <script setup>
+import { onMounted, ref } from "vue";
+import axios from "axios";
+
+const deptAdminCount = ref(0);
+const loading = ref(false);
+const error = ref(null);
+
+const fetchDeptAdminCount = async () => {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const response = await axios.get(
+      "http://localhost:3000/api/departmentAdmins/count"
+    );
+
+    if (!response.data.success) {
+      error.value = response.data.message;
+      deptAdminCount.value = 0;
+      return;
+    }
+
+    deptAdminCount.value = response.data.count; // ✅ Store count instead of data
+  } catch (err) {
+    error.value =
+      err.response?.data?.message ||
+      "Error: Failed to load department admin count.";
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchDeptAdminCount);
 </script>
 
 <template>
@@ -73,7 +106,11 @@
     <div class="bg-base-200 p-6">
       <div class="flex items-center justify-between">
         <div class="col">
-          <div class="text-3xl font-semibold">1</div>
+          <div class="text-3xl font-semibold">
+            <p v-if="loading">Loading...</p>
+            <p v-else-if="error">{{ error }}</p>
+            <p v-else>{{ deptAdminCount }}</p>
+          </div>
           <div class="text-gray-500">Administrator</div>
         </div>
         <i class="logo bx bx-check-shield bx-lg" />
