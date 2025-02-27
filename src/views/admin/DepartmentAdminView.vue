@@ -146,12 +146,12 @@ watch(searchQuery, () => {
               >
                 View
               </RouterLink>
-              <!-- <RouterLink
-                :to="{ name: 'edit-admin', params: { id: deptAdmins._id } }"
+              <RouterLink
+                :to="{ name: 'edit-department-admin', params: { id: deptAdmins._id } }"
                 class="font-bold text-yellow-500"
               >
                 Edit
-              </RouterLink> -->
+              </RouterLink>
               <a
                 href="#"
                 @click.prevent="deleteDeptAdmin(deptAdmins._id)"

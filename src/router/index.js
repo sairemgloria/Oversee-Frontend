@@ -40,6 +40,11 @@ const routes = [
     name: "view-department-admin",
     component: () => import("@/views/admin/ViewSelectedDepartmentAdmin.vue"),
   },
+  {
+    path: "/edit-department-admin/:id",
+    name: "edit-department-admin",
+    component: () => import("@/views/admin/EditSelectedDepartmentAdminView.vue"),
+  },
 
   /* 404 - Page Not Found */
   {

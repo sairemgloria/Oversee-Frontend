@@ -160,7 +160,7 @@ const createDeptAdmin = async () => {
           {{ validationErrors.password }}
         </p>
 
-        <!-- Select Role -->
+        <!-- Account Type -->
         <div class="label pt-2">
           <span class="label-text">Account Type</span>
         </div>
