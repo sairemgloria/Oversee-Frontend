@@ -69,10 +69,8 @@ const deleteDeptAdmin = async (id) => {
 
       await fetchDeptAdmins(); // Refetch dept admins from the API
 
-      // currentPage.value = 1; // Reset pagination to first page
-
       // ✅ Correctly update the list by filtering out the deleted record
-      deptAdmins.value = deptAdmins.value.filter((admin) => admin._id !== id);
+      deptAdmins.value = deptAdmins.value.filter((deptAdmin) => deptAdmin._id !== id);
 
       // ✅ Reset pagination if no data exists
       if (deptAdmins.value.length === 0) {

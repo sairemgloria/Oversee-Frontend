@@ -76,7 +76,13 @@ const deleteAdmin = async (id) => {
 
       await fetchAdmins(); // Refetch admins from the API
 
-      currentPage.value = 1; // Reset pagination to first page
+      // ✅ Correctly update the list by filtering out the deleted record
+      admins.value = admins.value.filter((admin) => admin._id !== id);
+
+      // ✅ Reset pagination if no data exists
+      if (admins.value.length === 0) {
+        currentPage.value = 1;
+      }
 
       swal.fire("Deleted!", "The admin has been deleted.", "success");
     }
@@ -166,8 +172,9 @@ const deleteAdmin = async (id) => {
       </table>
 
       <!-- Pagination -->
+      <!-- v-if="admins.length > 0" -->
       <div
-        v-if="admins.length > 0"
+        v-if="filteredItems.length > 0 && admins.length > 0"
         class="flex justify-center my-4 md:justify-end my-8"
       >
         <button
