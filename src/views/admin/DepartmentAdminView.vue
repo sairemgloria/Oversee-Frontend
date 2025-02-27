@@ -69,7 +69,15 @@ const deleteDeptAdmin = async (id) => {
 
       await fetchDeptAdmins(); // Refetch dept admins from the API
 
-      currentPage.value = 1; // Reset pagination to first page
+      // currentPage.value = 1; // Reset pagination to first page
+
+      // ✅ Correctly update the list by filtering out the deleted record
+      deptAdmins.value = deptAdmins.value.filter((admin) => admin._id !== id);
+
+      // ✅ Reset pagination if no data exists
+      if (deptAdmins.value.length === 0) {
+        currentPage.value = 1;
+      }
 
       swal.fire(
         "Deleted!",
@@ -141,13 +149,19 @@ watch(searchQuery, () => {
               class="flex flex-col justify-start md:flex-row gap-2 items-center"
             >
               <RouterLink
-                :to="{ name: 'view-department-admin', params: { id: deptAdmins._id } }"
+                :to="{
+                  name: 'view-department-admin',
+                  params: { id: deptAdmins._id },
+                }"
                 class="font-bold text-blue-500"
               >
                 View
               </RouterLink>
               <RouterLink
-                :to="{ name: 'edit-department-admin', params: { id: deptAdmins._id } }"
+                :to="{
+                  name: 'edit-department-admin',
+                  params: { id: deptAdmins._id },
+                }"
                 class="font-bold text-yellow-500"
               >
                 Edit
@@ -178,8 +192,9 @@ watch(searchQuery, () => {
       </table>
 
       <!-- Pagination -->
+      <!-- v-if="deptAdmins.length > 0" -->
       <div
-        v-if="deptAdmins.length > 0"
+        v-if="filteredItems.length > 0 && deptAdmins.length > 0"
         class="flex justify-center my-4 md:justify-end my-8"
       >
         <button
