@@ -2,6 +2,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import axios from "axios";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
+
 export const useAdminStore = defineStore("adminStore", () => {
   const admins = ref([]); // store all admins
   const loading = ref(false); // set loading to false
@@ -13,7 +16,7 @@ export const useAdminStore = defineStore("adminStore", () => {
     error.value = null;
 
     try {
-      const response = await axios.get("http://localhost:3000/api/admins/");
+      const response = await axios.get(`${API_BASE_URL}/admins/`);
       if (response.data.success) {
         admins.value = response.data.data;
       } else {
@@ -63,7 +66,7 @@ export const useAdminStore = defineStore("adminStore", () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/admins/",
+        `${API_BASE_URL}/admins/`,
         adminForm.value
       );
 
@@ -75,11 +78,13 @@ export const useAdminStore = defineStore("adminStore", () => {
           showConfirmButton: false,
           timer: 1500,
         });
-        closeModal();
-        Object.keys(adminForm.value).forEach(
-          (key) => (adminForm.value[key] = "")
-        );
+
+        await closeModal();
+
+        adminForm.value = { name: "", email: "", password: "", type: "" };
+
         emit("adminAdded", response.data.data);
+
         fetchAdmins(); // Refresh the list after adding
       } else {
         swal.fire({
@@ -103,7 +108,7 @@ export const useAdminStore = defineStore("adminStore", () => {
 
   const deleteAdmin = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/api/admins/${id}`);
+      await axios.delete(`${API_BASE_URL}/admins/${id}`);
 
       // ✅ Instantly update the UI by removing the deleted admin
       admins.value = admins.value.filter((admin) => admin._id !== id);
