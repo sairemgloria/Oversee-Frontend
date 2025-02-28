@@ -7,6 +7,7 @@ const API_BASE_URL =
 
 export const useAdminStore = defineStore("adminStore", () => {
   const admins = ref([]); // store all admins
+  const viewSelectedAdmin = ref(null);
   const loading = ref(false); // set loading to false
   const error = ref(null); // set error to null
 
@@ -25,6 +26,35 @@ export const useAdminStore = defineStore("adminStore", () => {
     } catch (err) {
       error.value =
         err.response?.data?.message || "Error: Failed to load admins.";
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  /* Function to view selected admin */
+  const fetchAdmin = async (adminId) => {
+    loading.value = true;
+    error.value = null;
+    viewSelectedAdmin.value = null;
+
+    // Frontend validation: Check if the ID is valid before making an API call
+    if (!adminId.match(/^[0-9a-fA-F]{24}$/)) {
+      error.value = "Invalid Admin ID.";
+      loading.value = false;
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admins/${adminId}`);
+      if (response.data.success) {
+        viewSelectedAdmin.value = response.data.data;
+      } else {
+        error.value = response.data.message || "Admin not found";
+      }
+    } catch (err) {
+      console.error(`Error: ${err}`);
+      err.value =
+        err.response?.data?.message || "Failed to load admin details.";
     } finally {
       loading.value = false;
     }
@@ -128,9 +158,11 @@ export const useAdminStore = defineStore("adminStore", () => {
 
   return {
     admins,
+    viewSelectedAdmin,
     loading,
     error,
     fetchAdmins,
+    fetchAdmin,
     createAdmin,
     deleteAdmin,
     adminForm,
