@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, watch, inject } from "vue";
-import axios from "axios";
+import { computed, inject, onMounted, watch } from "vue";
+import { useAdminStore } from "@/stores/admin/adminStore";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 import CreateAdminModal from "@/components/admin/CreateAdminModal.vue";
 import SearchBar from "@/components/admin/SearchBar.vue";
@@ -10,55 +10,17 @@ import LoadingError from "@/components/admin/common/LoadingError.vue";
 
 const swal = inject("$swal"); // Sweetalert2
 
-const loading = ref(true);
-const error = ref(null);
-const admins = ref([]);
+const adminStore = useAdminStore();
+const loading = computed(() => adminStore.loading);
+const error = computed(() => adminStore.error);
 
-/* Fetch admins from the API */
-const fetchAdmins = async () => {
-  loading.value = true;
-  error.value = null;
+// Fetch admins on component mount
+onMounted(adminStore.fetchAdmins);
 
-  try {
-    const response = await axios.get("http://localhost:3000/api/admins/");
-    if (!response.data.success) {
-      error.value = response.data.message;
-      admins.value = [];
-      return;
-    }
-    admins.value = response.data.data;
-  } catch (err) {
-    error.value =
-      err.response?.data?.message || "Error: Failed to load admins.";
-  } finally {
-    loading.value = false;
-  }
-};
+// Ensure the admins list is reactive
+const admins = computed(() => adminStore.admins);
 
-onMounted(fetchAdmins);
-
-/* Function to add a new admin and update the list */
-const addNewAdmin = async (newAdmin) => {
-  // Add the new admin to the list
-  admins.value.push(newAdmin);
-
-  // Fetch updated data from the backend
-  try {
-    await fetchAdmins();
-  } catch (error) {
-    console.error("Failed to update admin list:", error);
-  }
-};
-
-const { searchQuery, filteredItems } = useFilter(admins, ["name", "email"]);
-const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
-  usePagination(filteredItems); // Apply pagination AFTER filtering
-
-// Reset to page 1 when search changes to avoid missing results
-watch(searchQuery, () => {
-  currentPage.value = 1;
-});
-
+// Delete admin function using Pinia store
 const deleteAdmin = async (id) => {
   try {
     const result = await swal.fire({
@@ -72,25 +34,27 @@ const deleteAdmin = async (id) => {
     });
 
     if (result.isConfirmed) {
-      await axios.delete(`http://localhost:3000/api/admins/${id}`);
-
-      await fetchAdmins(); // Refetch admins from the API
-
-      // ✅ Correctly update the list by filtering out the deleted record
-      admins.value = admins.value.filter((admin) => admin._id !== id);
-
-      // ✅ Reset pagination if no data exists
-      if (admins.value.length === 0) {
-        currentPage.value = 1;
+      await adminStore.deleteAdmin(id);
+      // ✅ Reset pagination correctly
+      if (paginatedItems.value.length === 0 && currentPage.value > 1) {
+        currentPage.value -= 1; // Go back to the previous page if the current one is empty
       }
-
       swal.fire("Deleted!", "The admin has been deleted.", "success");
     }
   } catch (err) {
-    console.error("Delete error:", err.response?.data || err.message);
     swal.fire("Error!", "Failed to delete the admin.", "error");
   }
 };
+
+// Filtering and pagination
+const { searchQuery, filteredItems } = useFilter(admins, ["name", "email"]);
+const { currentPage, paginatedItems, totalPages, nextPage, prevPage } =
+  usePagination(filteredItems); // Apply pagination AFTER filtering
+
+// Reset to page 1 when search changes to avoid missing results
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
 </script>
 
 <template>
@@ -105,7 +69,7 @@ const deleteAdmin = async (id) => {
 
   <div class="px-6">
     <div class="flex flex-col md:flex-row gap-4 justify-between mb-4">
-      <CreateAdminModal @adminAdded="addNewAdmin" class="mb-2 md:mb-0" />
+      <CreateAdminModal />
       <SearchBar v-model="searchQuery" />
     </div>
 

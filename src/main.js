@@ -3,5 +3,8 @@ import "@/style.css";
 import App from "@/App.vue";
 import router from "@/router";
 import SwalPlugin from "@/plugins/swal";
+import { createPinia } from "pinia";
 
-createApp(App).use(router).use(SwalPlugin).mount("#app");
+const pinia = createPinia(); // create an instance for Pinia
+
+createApp(App).use(router).use(SwalPlugin).use(pinia).mount("#app");
