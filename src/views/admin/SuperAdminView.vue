@@ -68,7 +68,7 @@ watch(searchQuery, () => {
   </div>
 
   <div class="px-6">
-    <div class="flex flex-col md:flex-row gap-4 justify-between mb-4">
+    <div class="flex flex-col md:flex-row gap-4 justify-between mb-6">
       <CreateAdminModal />
       <SearchBar v-model="searchQuery" />
     </div>
