@@ -50,6 +50,10 @@ export const useAdminStore = defineStore("adminStore", () => {
     });
   };
 
+  const resetForm = () => {
+    adminForm.value = { name: "", email: "", password: "", type: "" };
+  };
+
   const createAdmin = async (swal, closeModal, emit) => {
     clearValidationErrors();
 
@@ -81,11 +85,11 @@ export const useAdminStore = defineStore("adminStore", () => {
 
         await closeModal();
 
-        adminForm.value = { name: "", email: "", password: "", type: "" };
+        resetForm(); // call the resetForm function
 
         emit("adminAdded", response.data.data);
 
-        fetchAdmins(); // Refresh the list after adding
+        await fetchAdmins(); // Ensure fresh data is loaded
       } else {
         swal.fire({
           position: "top-end",
