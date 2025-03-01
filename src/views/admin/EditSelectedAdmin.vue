@@ -1,7 +1,7 @@
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, computed } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
-import axios from "axios";
+import { useAdminStore } from "@/stores/admin/adminStore";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 
 const swal = inject("$swal"); // Sweetalert2
@@ -10,59 +10,24 @@ const swal = inject("$swal"); // Sweetalert2
 const route = useRoute();
 const router = useRouter();
 const adminId = route.params.id;
+const store = useAdminStore();
 
-// Reactive variables
-const admin = ref({ name: "", email: "", type: "" }); // Password is excluded from fetching
-const newPassword = ref(""); // Separate ref for new password input
-const error = ref(null);
-const loading = ref(true);
 const validationErrors = ref({
   name: "",
   email: "",
-  password: "",
+  oldPassword: "",
+  newPassword: "",
   type: "",
 });
 
-// Function to fetch the admin data (excluding password)
-const fetchAdmin = async () => {
-  loading.value = true;
-  error.value = null;
+// Computed property to bind store data
+const admin = computed(() => store.viewSelectedAdmin || {});
 
-  if (!adminId.match(/^[0-9a-fA-F]{24}$/)) {
-    error.value = "Invalid Admin ID.";
-    loading.value = false;
-    return;
-  }
+// Fetch admin data on mount using Pinia
+onMounted(() => store.fetchAdmin(adminId));
 
-  try {
-    const response = await axios.get(
-      `http://localhost:3000/api/admins/${adminId}`
-    );
-
-    if (response.data.success) {
-      admin.value = {
-        name: response.data.data.name,
-        email: response.data.data.email,
-        type: response.data.data.type,
-      };
-    } else {
-      error.value = response.data.message || "Admin not found.";
-    }
-  } catch (err) {
-    error.value =
-      err.response?.data?.message || "Failed to load admin details.";
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Fetch admin data on mount
-onMounted(fetchAdmin);
-
-// ✅ Function to update admin data
+// ✅ Function to update admin using Pinia
 const updateAdmin = async () => {
-  if (!admin.value) return;
-
   validationErrors.value = {
     name: "",
     email: "",
@@ -92,45 +57,16 @@ const updateAdmin = async () => {
   // Stop if any validation error exists
   if (Object.values(validationErrors.value).some((error) => error)) return;
 
-  try {
-    const response = await axios.put(
-      `http://localhost:3000/api/admins/${adminId}`,
-      {
-        name: admin.value.name,
-        email: admin.value.email,
-        oldPassword: admin.value.oldPassword || undefined,
-        newPassword: admin.value.newPassword || undefined,
-        type: admin.value.type,
-      }
-    );
+  // Prepare update payload
+  const updatedData = {
+    name: admin.value.name,
+    email: admin.value.email,
+    oldPassword: admin.value.oldPassword || undefined,
+    newPassword: admin.value.newPassword || undefined,
+    type: admin.value.type,
+  };
 
-    if (response.status === 200 && response.data.success) {
-      swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Admin profile updated successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-
-      await fetchAdmin(); // Refresh data after update
-    } else {
-      swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Oops...",
-        text: response.data.message || "An error occurred.",
-      });
-    }
-  } catch (err) {
-    let errorMessage = err.response?.data?.message || "Something went wrong!";
-    swal.fire({
-      position: "top-end",
-      icon: "error",
-      title: "Oops...",
-      text: errorMessage,
-    });
-  }
+  await store.updateAdmin(adminId, updatedData, swal);
 };
 </script>
 
@@ -144,10 +80,14 @@ const updateAdmin = async () => {
     <hr class="mt-6" />
 
     <!-- Show loading state -->
-    <p v-if="loading" class="text-3xl pt-6 text-gray-500">Fetching data...</p>
+    <p v-if="store.loading" class="text-3xl pt-6 text-gray-500">
+      Fetching data...
+    </p>
 
     <!-- Show error messages -->
-    <p v-else-if="error" class="text-3xl pt-6 text-red-700">{{ error }}</p>
+    <p v-else-if="store.error" class="text-3xl pt-6 text-red-700">
+      {{ store.error }}
+    </p>
 
     <!-- Show admin details if fetched successfully -->
     <div v-else class="pt-6">

@@ -140,6 +140,37 @@ export const useAdminStore = defineStore("adminStore", () => {
     }
   };
 
+  /* Function update selected admin */
+  const updateAdmin = async (id, updatedData, swal) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/admins/${id}`, updatedData);
+      if (response.status === 200 && response.data.success) {
+        swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Admin profile updated successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        await fetchAdmin(adminId); // Refresh the updated admin data
+      } else {
+        swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Oops...",
+          text: response.data.message || "An error occurred.",
+        });
+      }
+    } catch (err) {
+      swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Oops...",
+        text: err.response?.data?.message || "Something went wrong!",
+      });
+    }
+  }
+
   const deleteAdmin = async (id) => {
     try {
       await axios.delete(`${API_BASE_URL}/admins/${id}`);
@@ -164,6 +195,7 @@ export const useAdminStore = defineStore("adminStore", () => {
     fetchAdmins,
     fetchAdmin,
     createAdmin,
+    updateAdmin,
     deleteAdmin,
     adminForm,
     validationErrors,
