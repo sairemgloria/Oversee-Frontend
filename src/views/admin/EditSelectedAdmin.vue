@@ -4,9 +4,7 @@ import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useAdminStore } from "@/stores/admin/adminStore";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 
-const swal = inject("$swal"); // Sweetalert2
-
-// Get the admin ID from the URL parameters
+const swal = inject("$swal");
 const route = useRoute();
 const router = useRouter();
 const adminId = route.params.id;
@@ -20,11 +18,28 @@ const validationErrors = ref({
   type: "",
 });
 
-// Computed property to bind store data
-const admin = computed(() => store.viewSelectedAdmin || {});
+// Local copy of admin data to prevent modifying computed property directly
+const form = ref({
+  name: "",
+  email: "",
+  oldPassword: "",
+  newPassword: "",
+  type: "",
+});
 
-// Fetch admin data on mount using Pinia
-onMounted(() => store.fetchAdmin(adminId));
+// Fetch admin data and populate the form
+onMounted(async () => {
+  await store.fetchAdmin(adminId);
+  if (store.viewSelectedAdmin) {
+    form.value = {
+      name: store.viewSelectedAdmin.name,
+      email: store.viewSelectedAdmin.email,
+      oldPassword: "",
+      newPassword: "",
+      type: store.viewSelectedAdmin.type,
+    };
+  }
+});
 
 // ✅ Function to update admin using Pinia
 const updateAdmin = async () => {
@@ -37,33 +52,32 @@ const updateAdmin = async () => {
   };
 
   // Validate fields
-  if (!admin.value.name?.trim())
+  if (!form.value.name.trim())
     validationErrors.value.name = "Name is required.";
-  if (!admin.value.email?.trim())
+  if (!form.value.email.trim())
     validationErrors.value.email = "Email is required.";
-  if (!admin.value.type?.trim())
+  if (!form.value.type.trim())
     validationErrors.value.type = "Role selection is required.";
 
   // ✅ Require Old Password if New Password is Entered
-  if (admin.value.newPassword?.trim()) {
-    if (!admin.value.oldPassword?.trim()) {
+  if (form.value.newPassword?.trim()) {
+    if (!form.value.oldPassword?.trim()) {
       validationErrors.value.oldPassword = "Old password is required.";
-    } else if (admin.value.newPassword.trim().length < 6) {
+    } else if (form.value.newPassword.trim().length < 6) {
       validationErrors.value.newPassword =
         "New password must be at least 6 characters.";
     }
   }
 
-  // Stop if any validation error exists
   if (Object.values(validationErrors.value).some((error) => error)) return;
 
   // Prepare update payload
   const updatedData = {
-    name: admin.value.name,
-    email: admin.value.email,
-    oldPassword: admin.value.oldPassword || undefined,
-    newPassword: admin.value.newPassword || undefined,
-    type: admin.value.type,
+    name: form.value.name,
+    email: form.value.email,
+    oldPassword: form.value.oldPassword || undefined,
+    newPassword: form.value.newPassword || undefined,
+    type: form.value.type,
   };
 
   await store.updateAdmin(adminId, updatedData, swal);
@@ -79,27 +93,23 @@ const updateAdmin = async () => {
     <Breadcrumb />
     <hr class="mt-6" />
 
-    <!-- Show loading state -->
     <p v-if="store.loading" class="text-3xl pt-6 text-gray-500">
       Fetching data...
     </p>
 
-    <!-- Show error messages -->
     <p v-else-if="store.error" class="text-3xl pt-6 text-red-700">
       {{ store.error }}
     </p>
 
-    <!-- Show admin details if fetched successfully -->
     <div v-else class="pt-6">
       <h1 class="text-3xl pb-2">Profile Information</h1>
 
       <form @submit.prevent="updateAdmin">
-        <!-- Name -->
         <div class="label">
           <span class="label-text">Name</span>
         </div>
         <input
-          v-model="admin.name"
+          v-model="form.name"
           type="text"
           placeholder="Type here"
           class="input input-bordered w-full"
@@ -108,12 +118,11 @@ const updateAdmin = async () => {
           {{ validationErrors.name }}
         </p>
 
-        <!-- Email -->
         <div class="label pt-2">
           <span class="label-text">Email</span>
         </div>
         <input
-          v-model="admin.email"
+          v-model="form.email"
           type="email"
           placeholder="sample@email.com"
           class="input input-bordered w-full"
@@ -122,12 +131,11 @@ const updateAdmin = async () => {
           {{ validationErrors.email }}
         </p>
 
-        <!-- Old Password -->
         <div class="label pt-2">
           <span class="label-text">Old Password</span>
         </div>
         <input
-          v-model="admin.oldPassword"
+          v-model="form.oldPassword"
           type="password"
           placeholder="Enter old password"
           class="input input-bordered w-full"
@@ -136,12 +144,11 @@ const updateAdmin = async () => {
           {{ validationErrors.oldPassword }}
         </p>
 
-        <!-- New Password -->
         <div class="label pt-2">
           <span class="label-text">New Password</span>
         </div>
         <input
-          v-model="admin.newPassword"
+          v-model="form.newPassword"
           type="password"
           placeholder="Enter new password"
           class="input input-bordered w-full"
@@ -150,11 +157,10 @@ const updateAdmin = async () => {
           {{ validationErrors.newPassword }}
         </p>
 
-        <!-- Select Role -->
         <div class="label pt-2">
           <span class="label-text">Select Role</span>
         </div>
-        <select v-model="admin.type" class="select select-bordered w-full mb-2">
+        <select v-model="form.type" class="select select-bordered w-full mb-2">
           <option disabled value="">Select a role</option>
           <option>Superadmin</option>
           <option>IT Department</option>
@@ -163,7 +169,6 @@ const updateAdmin = async () => {
           {{ validationErrors.type }}
         </p>
 
-        <!-- Buttons -->
         <div class="flex justify-end space-x-2 mt-4">
           <RouterLink
             :to="{ name: 'Superadmin' }"

@@ -152,7 +152,7 @@ export const useAdminStore = defineStore("adminStore", () => {
           showConfirmButton: false,
           timer: 1500,
         });
-        await fetchAdmin(adminId); // Refresh the updated admin data
+        await fetchAdmin(id); // Refresh the updated admin data
       } else {
         swal.fire({
           position: "top-end",
@@ -162,6 +162,7 @@ export const useAdminStore = defineStore("adminStore", () => {
         });
       }
     } catch (err) {
+      console.error("Error updating admin:", err.response || err);
       swal.fire({
         position: "top-end",
         icon: "error",
