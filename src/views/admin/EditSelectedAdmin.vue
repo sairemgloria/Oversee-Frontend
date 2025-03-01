@@ -7,7 +7,7 @@ import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 const swal = inject("$swal");
 const route = useRoute();
 const router = useRouter();
-const adminId = route.params.id;
+const id = route.params.id;
 const store = useAdminStore();
 
 const validationErrors = ref({
@@ -29,7 +29,7 @@ const form = ref({
 
 // Fetch admin data and populate the form
 onMounted(async () => {
-  await store.fetchAdmin(adminId);
+  await store.fetchAdmin(id);
   if (store.viewSelectedAdmin) {
     form.value = {
       name: store.viewSelectedAdmin.name,
@@ -80,7 +80,7 @@ const updateAdmin = async () => {
     type: form.value.type,
   };
 
-  await store.updateAdmin(adminId, updatedData, swal);
+  await store.updateAdmin(id, updatedData, swal);
 };
 </script>
 
