@@ -152,6 +152,7 @@ export const useAdminStore = defineStore("adminStore", () => {
         title: "Oops...",
         text: error.response?.data?.message || "Something went wrong!",
       });
+      closeModal(); // close the modal
     }
   };
 
