@@ -6,10 +6,10 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
 
 export const useAdminStore = defineStore("adminStore", () => {
-  const admins = ref([]); // store all admins
-  const viewSelectedAdmin = ref(null);
   const loading = ref(false); // set loading to false
   const error = ref(null); // set error to null
+  const admins = ref([]); // store all admins
+  const viewSelectedAdmin = ref(null);
 
   /* Function to get all admins */
   const fetchAdmins = async () => {
@@ -35,7 +35,7 @@ export const useAdminStore = defineStore("adminStore", () => {
   const fetchAdmin = async (adminId) => {
     loading.value = true;
     error.value = null;
-    viewSelectedAdmin.value = null;
+    viewSelectedAdmin.value = null; // Ensure previous data is cleared
 
     // Frontend validation: Check if the ID is valid before making an API call
     if (!adminId.match(/^[0-9a-fA-F]{24}$/)) {
@@ -53,7 +53,7 @@ export const useAdminStore = defineStore("adminStore", () => {
       }
     } catch (err) {
       console.error(`Error: ${err}`);
-      err.value =
+      error.value =
         err.response?.data?.message || "Failed to load admin details.";
     } finally {
       loading.value = false;
@@ -84,19 +84,35 @@ export const useAdminStore = defineStore("adminStore", () => {
     adminForm.value = { name: "", email: "", password: "", type: "" };
   };
 
-  const createAdmin = async (swal, closeModal, emit) => {
+  const validateForm = () => {
     clearValidationErrors();
+    let isValid = true;
 
-    if (!adminForm.value.name.trim())
+    if (!adminForm.value.name.trim()) {
       validationErrors.value.name = "Name is required.";
-    if (!adminForm.value.email.trim())
-      validationErrors.value.email = "Email is required.";
-    if (!adminForm.value.password.trim())
-      validationErrors.value.password = "Password is required.";
-    if (!adminForm.value.type.trim())
-      validationErrors.value.type = "Role selection is required.";
+      isValid = false;
+    }
 
-    if (Object.values(validationErrors.value).some((error) => error)) return;
+    if (!adminForm.value.email.trim()) {
+      validationErrors.value.email = "Email is required.";
+      isValid = false;
+    }
+
+    if (!adminForm.value.password.trim()) {
+      validationErrors.value.password = "Password is required.";
+      isValid = false;
+    }
+
+    if (!adminForm.value.type.trim()) {
+      validationErrors.value.type = "Role selection is required.";
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
+  const createAdmin = async (swal, closeModal, emit) => {
+    if (!validateForm()) return;
 
     try {
       const response = await axios.post(
@@ -113,9 +129,9 @@ export const useAdminStore = defineStore("adminStore", () => {
           timer: 1500,
         });
 
-        await closeModal();
-
         resetForm(); // call the resetForm function
+
+        closeModal(); // close the modal
 
         emit("adminAdded", response.data.data);
 
@@ -136,14 +152,16 @@ export const useAdminStore = defineStore("adminStore", () => {
         title: "Oops...",
         text: error.response?.data?.message || "Something went wrong!",
       });
-      closeModal();
     }
   };
 
   /* Function update selected admin */
   const updateAdmin = async (id, updatedData, swal) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/admins/${id}`, updatedData);
+      const response = await axios.put(
+        `${API_BASE_URL}/admins/${id}`,
+        updatedData
+      );
       if (response.status === 200 && response.data.success) {
         swal.fire({
           position: "top-end",
@@ -170,7 +188,7 @@ export const useAdminStore = defineStore("adminStore", () => {
         text: err.response?.data?.message || "Something went wrong!",
       });
     }
-  }
+  };
 
   const deleteAdmin = async (id) => {
     try {
