@@ -14,6 +14,31 @@ const openModal = () => {
 const closeModal = () => {
   document.getElementById("my_modal_1").close();
 };
+
+const handleCreateAdmin = async () => {
+  const result = await adminStore.createAdmin();
+
+  if (result.success) {
+    swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Admin registered successfully!",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+
+    emit("adminAdded", result.data);
+    closeModal();
+  } else {
+    console.log(result.message);
+    swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Oops...",
+      text: result.message || "Something went wrong.",
+    });
+  }
+};
 </script>
 
 <template>
@@ -25,10 +50,7 @@ const closeModal = () => {
   <dialog id="my_modal_1" class="modal">
     <div class="modal-box">
       <h3 class="text-lg font-bold">Create Admin</h3>
-      <form
-        @submit.prevent="adminStore.createAdmin(swal, closeModal, emit)"
-        class="p-2"
-      >
+      <form @submit.prevent="handleCreateAdmin" class="p-2">
         <div class="label">
           <span class="label-text">Name</span>
         </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, onMounted, computed } from "vue";
+import { ref, inject, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
 import { useAdminStore } from "@/stores/admin/adminStore";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
@@ -7,9 +7,11 @@ import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 const swal = inject("$swal");
 const route = useRoute();
 const router = useRouter();
-const id = route.params.id;
-const store = useAdminStore();
+const adminStore = useAdminStore();
 
+const adminId = route.params.id;
+
+// Form validation errors
 const validationErrors = ref({
   name: "",
   email: "",
@@ -18,7 +20,10 @@ const validationErrors = ref({
   type: "",
 });
 
-// Local copy of admin data to prevent modifying computed property directly
+// Compute selected admin from store
+const selectedAdmin = computed(() => adminStore.viewSelectedAdmin);
+
+// Local form data
 const form = ref({
   name: "",
   email: "",
@@ -27,21 +32,25 @@ const form = ref({
   type: "",
 });
 
-// Fetch admin data and populate the form
-onMounted(async () => {
-  await store.fetchAdmin(id);
-  if (store.viewSelectedAdmin) {
+// Fetch admin on mount
+onMounted(() => {
+  adminStore.fetchAdmin(adminId);
+});
+
+// Auto-populate form when selected admin changes
+watch(selectedAdmin, (admin) => {
+  if (admin) {
     form.value = {
-      name: store.viewSelectedAdmin.name,
-      email: store.viewSelectedAdmin.email,
+      name: admin.name,
+      email: admin.email,
       oldPassword: "",
       newPassword: "",
-      type: store.viewSelectedAdmin.type,
+      type: admin.type,
     };
   }
 });
 
-// ✅ Function to update admin using Pinia
+// ✅ Update admin function
 const updateAdmin = async () => {
   validationErrors.value = {
     name: "",
@@ -51,7 +60,7 @@ const updateAdmin = async () => {
     type: "",
   };
 
-  // Validate fields
+  // Validation
   if (!form.value.name.trim())
     validationErrors.value.name = "Name is required.";
   if (!form.value.email.trim())
@@ -59,7 +68,7 @@ const updateAdmin = async () => {
   if (!form.value.type.trim())
     validationErrors.value.type = "Role selection is required.";
 
-  // ✅ Require Old Password if New Password is Entered
+  // Require old password if new password is entered
   if (form.value.newPassword?.trim()) {
     if (!form.value.oldPassword?.trim()) {
       validationErrors.value.oldPassword = "Old password is required.";
@@ -80,7 +89,26 @@ const updateAdmin = async () => {
     type: form.value.type,
   };
 
-  await store.updateAdmin(id, updatedData, swal);
+  const success = await adminStore.updateAdmin(adminId, updatedData);
+
+  if (success) {
+    swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Admin profile updated successfully!",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+
+    router.push({ name: "Superadmin" }); // Redirect after success
+  } else {
+    swal.fire({
+      position: "top-end",
+      icon: "error",
+      title: "Oops...",
+      text: "Failed to update admin.",
+    });
+  }
 };
 </script>
 
@@ -93,12 +121,11 @@ const updateAdmin = async () => {
     <Breadcrumb />
     <hr class="mt-6" />
 
-    <p v-if="store.loading" class="text-3xl pt-6 text-gray-500">
+    <p v-if="adminStore.loading" class="text-3xl pt-6 text-gray-500">
       Fetching data...
     </p>
-
-    <p v-else-if="store.error" class="text-3xl pt-6 text-red-700">
-      {{ store.error }}
+    <p v-else-if="adminStore.error" class="text-3xl pt-6 text-red-700">
+      {{ adminStore.error }}
     </p>
 
     <div v-else class="pt-6">
@@ -173,9 +200,8 @@ const updateAdmin = async () => {
           <RouterLink
             :to="{ name: 'Superadmin' }"
             class="btn bg-neutral text-white"
+            >Go back</RouterLink
           >
-            Go back
-          </RouterLink>
           <button type="submit" class="btn bg-success text-white">
             Update
           </button>

@@ -87,32 +87,49 @@ export const useAdminStore = defineStore("adminStore", () => {
   const validateForm = () => {
     clearValidationErrors();
     let isValid = true;
+    let missingFields = [];
 
     if (!adminForm.value.name.trim()) {
       validationErrors.value.name = "Name is required.";
+      missingFields.push("Name");
       isValid = false;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!adminForm.value.email.trim()) {
       validationErrors.value.email = "Email is required.";
+      missingFields.push("Email");
       isValid = false;
+    } else if (!emailRegex.test(adminForm.value.email.trim())) {
+      validationErrors.value.email = "Invalid email format.";
+      return { isValid: false, message: "Invalid email format." };
     }
 
     if (!adminForm.value.password.trim()) {
       validationErrors.value.password = "Password is required.";
+      missingFields.push("Password");
       isValid = false;
     }
 
     if (!adminForm.value.type.trim()) {
       validationErrors.value.type = "Role selection is required.";
+      missingFields.push("Role");
       isValid = false;
     }
 
-    return isValid;
+    return {
+      isValid,
+      message: missingFields.length
+        ? `${missingFields.join(", ")} is required.`
+        : "",
+    };
   };
 
-  const createAdmin = async (swal, closeModal, emit) => {
-    if (!validateForm()) return;
+  const createAdmin = async () => {
+    const validation = validateForm();
+    if (!validation.isValid) {
+      return { success: false, message: validation.message }; // Short message like "Name, Email is required."
+    }
 
     try {
       const response = await axios.post(
@@ -121,73 +138,45 @@ export const useAdminStore = defineStore("adminStore", () => {
       );
 
       if (response.status === 201 && response.data.success) {
-        swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Admin registered successfully!",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-
-        resetForm(); // call the resetForm function
-
-        closeModal(); // close the modal
-
-        emit("adminAdded", response.data.data);
-
-        await fetchAdmins(); // Ensure fresh data is loaded
+        resetForm();
+        await fetchAdmins();
+        return { success: true, data: response.data.data };
       } else {
-        swal.fire({
-          position: "top-end",
-          icon: "error",
-          title: "Oops...",
-          text: response.data.message || "An error occurred.",
-        });
+        return {
+          success: false,
+          message:
+            response.data.message ||
+            "Failed to create admin. Please try again.",
+        };
       }
     } catch (error) {
       console.error("API Error:", error.response?.data);
-      swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Oops...",
-        text: error.response?.data?.message || "Something went wrong!",
-      });
-      closeModal(); // close the modal
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          "A network or server error occurred.",
+      };
     }
   };
 
   /* Function update selected admin */
-  const updateAdmin = async (adminId, updatedData, swal) => {
+  const updateAdmin = async (adminId, updatedData) => {
     try {
       const response = await axios.put(
         `${API_BASE_URL}/admins/${adminId}`,
         updatedData
       );
+
       if (response.status === 200 && response.data.success) {
-        swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Admin profile updated successfully!",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        await fetchAdmin(adminId); // Refresh the updated admin data
+        await fetchAdmin(adminId); // Refresh data
+        return true;
       } else {
-        swal.fire({
-          position: "top-end",
-          icon: "error",
-          title: "Oops...",
-          text: response.data.message || "An error occurred.",
-        });
+        return false;
       }
     } catch (err) {
-      console.error("Error updating admin:", err.response || err);
-      swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Oops...",
-        text: err.response?.data?.message || "Something went wrong!",
-      });
+      console.error("Error updating admin:", err.response?.data || err.message);
+      return false;
     }
   };
 

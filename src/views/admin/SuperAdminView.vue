@@ -9,10 +9,7 @@ import usePagination from "@/composables/usePagination";
 import LoadingError from "@/components/admin/common/LoadingError.vue";
 
 const swal = inject("$swal"); // Sweetalert2
-
 const adminStore = useAdminStore();
-const loading = computed(() => adminStore.loading);
-const error = computed(() => adminStore.error);
 
 // Fetch admins on component mount
 onMounted(adminStore.fetchAdmins);
@@ -20,7 +17,7 @@ onMounted(adminStore.fetchAdmins);
 // Ensure the admins list is reactive
 const admins = computed(() => adminStore.admins);
 
-// Delete admin function using Pinia store
+// Delete admin function (UI logic only)
 const deleteAdmin = async (id) => {
   try {
     const result = await swal.fire({
@@ -75,12 +72,12 @@ watch(searchQuery, () => {
 
     <div class="overflow-x-auto">
       <!-- Use the reusable component for loading and error handling -->
-      <LoadingError :loading="loading" :error="error" />
+      <LoadingError :loading="adminStore.loading" :error="adminStore.error" />
 
       <!-- datatable -->
       <table
         class="table w-full border-collapse border border-gray-300"
-        v-if="!loading && !error"
+        v-if="!adminStore.loading && !adminStore.error"
       >
         <thead>
           <tr class="bg-base-300">
