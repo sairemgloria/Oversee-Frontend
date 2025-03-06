@@ -157,10 +157,10 @@ export const useAdminStore = defineStore("adminStore", () => {
   };
 
   /* Function update selected admin */
-  const updateAdmin = async (id, updatedData, swal) => {
+  const updateAdmin = async (adminId, updatedData, swal) => {
     try {
       const response = await axios.put(
-        `${API_BASE_URL}/admins/${id}`,
+        `${API_BASE_URL}/admins/${adminId}`,
         updatedData
       );
       if (response.status === 200 && response.data.success) {
@@ -171,7 +171,7 @@ export const useAdminStore = defineStore("adminStore", () => {
           showConfirmButton: false,
           timer: 1500,
         });
-        await fetchAdmin(id); // Refresh the updated admin data
+        await fetchAdmin(adminId); // Refresh the updated admin data
       } else {
         swal.fire({
           position: "top-end",
@@ -191,12 +191,12 @@ export const useAdminStore = defineStore("adminStore", () => {
     }
   };
 
-  const deleteAdmin = async (id) => {
+  const deleteAdmin = async (adminId) => {
     try {
       await axios.delete(`${API_BASE_URL}/admins/${id}`);
 
       // ✅ Instantly update the UI by removing the deleted admin
-      admins.value = admins.value.filter((admin) => admin._id !== id);
+      admins.value = admins.value.filter((admin) => admin._id !== adminId);
 
       // ✅ Fetch fresh data from the backend to ensure pagination updates correctly
       await fetchAdmins();
