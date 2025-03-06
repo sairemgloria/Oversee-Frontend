@@ -193,7 +193,7 @@ export const useAdminStore = defineStore("adminStore", () => {
 
   const deleteAdmin = async (adminId) => {
     try {
-      await axios.delete(`${API_BASE_URL}/admins/${id}`);
+      await axios.delete(`${API_BASE_URL}/admins/${adminId}`);
 
       // ✅ Instantly update the UI by removing the deleted admin
       admins.value = admins.value.filter((admin) => admin._id !== adminId);
