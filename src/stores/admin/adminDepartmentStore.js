@@ -34,6 +34,38 @@ export const useAdminDepartmentStore = defineStore(
       }
     };
 
+    /* Function to get selected department admin */
+    const fetchDepartmentAdmin = async (departmentAdminId) => {
+      loading.value = true;
+      error.value = null;
+      viewSelectedDepartmentAdmin.value = null; // Ensure previous data is cleared
+
+      // Frontend validation: Check if the ID is valid before making an API call
+      if (!departmentAdminId.match(/^[0-9a-fA-F]{24}$/)) {
+        error.value = "Invalid Department Admin ID.";
+        loading.value = false;
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/departmentAdmins/${departmentAdminId}`
+        );
+        if (response.data.success) {
+          viewSelectedDepartmentAdmin.value = response.data.data;
+        } else {
+          error.value = response.data.message || "Department Admin not found";
+        }
+      } catch (err) {
+        console.error(`Error: ${err}`);
+        error.value =
+          err.response?.data?.message ||
+          "Failed to load department admin details.";
+      } finally {
+        loading.value = false;
+      }
+    };
+
     const adminDepartmentForm = ref({
       name: "",
       email: "",
@@ -148,6 +180,7 @@ export const useAdminDepartmentStore = defineStore(
       departmentAdmins,
       viewSelectedDepartmentAdmin,
       fetchDepartmentAdmins,
+      fetchDepartmentAdmin,
       createDepartmentAdmin,
       adminDepartmentForm,
       validationErrors,
