@@ -26,7 +26,7 @@ export const useAdminDepartmentStore = defineStore(
           error.value = response.data.message;
         }
       } catch (err) {
-        err.value =
+        error.value =
           err.response?.data?.message ||
           "Error: Failed to load department admins.";
       } finally {
@@ -203,6 +203,30 @@ export const useAdminDepartmentStore = defineStore(
       }
     };
 
+    /* Function to delete selected department admin */
+    const deleteDepartmentAdmin = async (departmentAdminId) => {
+      try {
+        await axios.delete(
+          `${API_BASE_URL}/departmentAdmins/${departmentAdminId}`
+        );
+
+        // ✅ Instantly update the UI by removing the deleted department admin
+        departmentAdmins.value = departmentAdmins.value.filter(
+          (departmentAdmin) => departmentAdmin._id !== departmentAdminId
+        );
+
+        // ✅ Fetch fresh data from the backend to ensure pagination updates correctly
+        await fetchDepartmentAdmins();
+      } catch (err) {
+        error.value =
+          err.response?.data?.message || "Error: Failed to delete admin.";
+        console.error(
+          "Error deleting admin:",
+          err.response?.data || err.message
+        );
+      }
+    };
+
     return {
       loading,
       error,
@@ -212,6 +236,7 @@ export const useAdminDepartmentStore = defineStore(
       fetchDepartmentAdmin,
       createDepartmentAdmin,
       updateDepartmentAdmin,
+      deleteDepartmentAdmin,
       adminDepartmentForm,
       validationErrors,
       clearValidationErrors,
