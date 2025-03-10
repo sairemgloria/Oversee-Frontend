@@ -174,6 +174,35 @@ export const useAdminDepartmentStore = defineStore(
       }
     };
 
+    /* Function to update selected department admin */
+    const updateDepartmentAdmin = async (departmentAdminId, updatedData) => {
+      try {
+        const response = await axios.put(
+          `${API_BASE_URL}/departmentAdmins/${departmentAdminId}`,
+          updatedData
+        );
+
+        if (response.status === 200 && response.data.success) {
+          await fetchDepartmentAdmin(departmentAdminId);
+          return { success: true }; // ✅ Return an object instead of just `true`
+        } else {
+          return {
+            success: false,
+            message: response.data.message || "Unknown error",
+          };
+        }
+      } catch (err) {
+        console.error(
+          "Error updating admin:",
+          err.response?.data || err.message
+        );
+        return {
+          success: false,
+          message: err.response?.data?.message || "Failed to update admin.",
+        };
+      }
+    };
+
     return {
       loading,
       error,
@@ -182,6 +211,7 @@ export const useAdminDepartmentStore = defineStore(
       fetchDepartmentAdmins,
       fetchDepartmentAdmin,
       createDepartmentAdmin,
+      updateDepartmentAdmin,
       adminDepartmentForm,
       validationErrors,
       clearValidationErrors,

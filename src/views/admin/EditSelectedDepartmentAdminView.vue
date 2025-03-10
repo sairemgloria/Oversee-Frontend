@@ -1,68 +1,59 @@
 <script setup>
-import { ref, inject, onMounted } from "vue";
+import { ref, inject, onMounted, computed, watch } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
-import axios from "axios";
+import { useAdminDepartmentStore } from "@/stores/admin/adminDepartmentStore";
 import Breadcrumb from "@/components/admin/Breadcrumb.vue";
 
 const swal = inject("$swal"); // Sweetalert2
-
-// Get the admin ID from the URL parameters
 const route = useRoute();
 const router = useRouter();
-const deptAdminId = route.params.id;
+const adminDepartmentStore = useAdminDepartmentStore();
 
-// Reactive variables
-const deptAdmin = ref({ name: "", email: "", type: "" }); // Password is excluded from fetching
-const newPassword = ref(""); // Separate ref for new password input
-const error = ref(null);
-const loading = ref(true);
+const departmentAdminId = route.params.id;
+
+// Form validation errors
 const validationErrors = ref({
   name: "",
   email: "",
-  password: "",
+  oldPassword: "",
+  newPassword: "",
   type: "",
 });
 
-// Function to fetch the admin data (excluding password)
-const fetchDeptAdmin = async () => {
-  loading.value = true;
-  error.value = null;
+// Compute selected department admin from store
+const selectedDepartmentAdmin = computed(
+  () => adminDepartmentStore.viewSelectedDepartmentAdmin
+);
 
-  if (!deptAdminId.match(/^[0-9a-fA-F]{24}$/)) {
-    error.value = "Invalid Department Admin ID.";
-    loading.value = false;
-    return;
+// Local form data
+const form = ref({
+  name: "",
+  email: "",
+  oldPassword: "",
+  newPassword: "",
+  type: "",
+});
+
+// Fetch department admin on mount
+onMounted(() => {
+  adminDepartmentStore.fetchDepartmentAdmin(departmentAdminId);
+});
+
+// Auto-populate form when selected department admin changes
+watch(selectedDepartmentAdmin, (departmentAdmin) => {
+  if (departmentAdmin) {
+    form.value = {
+      name: departmentAdmin.name,
+      email: departmentAdmin.email,
+      oldPassword: "",
+      newPassword: "",
+      type: departmentAdmin.type,
+    };
   }
+});
 
-  try {
-    const response = await axios.get(
-      `http://localhost:3000/api/departmentAdmins/${deptAdminId}`
-    );
-
-    if (response.data.success) {
-      deptAdmin.value = {
-        name: response.data.data.name,
-        email: response.data.data.email,
-        type: response.data.data.type,
-      };
-    } else {
-      error.value = response.data.message || "Department admin not found.";
-    }
-  } catch (err) {
-    error.value =
-      err.response?.data?.message || "Failed to load department admin details.";
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Fetch department admin data on mount
-onMounted(fetchDeptAdmin);
-
-// ✅ Function to update admin data
-const updateDeptAdmin = async () => {
-  if (!deptAdmin.value) return;
-
+// ✅ Update department admin function
+const updateDepartmentAdmin = async () => {
   validationErrors.value = {
     name: "",
     email: "",
@@ -71,64 +62,56 @@ const updateDeptAdmin = async () => {
     type: "",
   };
 
-  // Validate fields
-  if (!deptAdmin.value.name?.trim())
+  // Validation
+  if (!form.value.name.trim())
     validationErrors.value.name = "Name is required.";
-  if (!deptAdmin.value.email?.trim())
+  if (!form.value.email.trim())
     validationErrors.value.email = "Email is required.";
-  if (!deptAdmin.value.type?.trim())
-    validationErrors.value.type = "Account type selection is required.";
+  if (!form.value.type.trim())
+    validationErrors.value.type = "Role selection is required.";
 
-  // ✅ Require Old Password if New Password is Entered
-  if (deptAdmin.value.newPassword?.trim()) {
-    if (!deptAdmin.value.oldPassword?.trim()) {
+  // Require old password if new password is entered
+  if (form.value.newPassword?.trim()) {
+    if (!form.value.oldPassword?.trim()) {
       validationErrors.value.oldPassword = "Old password is required.";
-    } else if (deptAdmin.value.newPassword.trim().length < 6) {
+    } else if (form.value.newPassword.trim().length < 6) {
       validationErrors.value.newPassword =
         "New password must be at least 6 characters.";
     }
   }
 
-  // Stop if any validation error exists
   if (Object.values(validationErrors.value).some((error) => error)) return;
 
-  try {
-    const response = await axios.put(
-      `http://localhost:3000/api/departmentAdmins/${deptAdminId}`,
-      {
-        name: deptAdmin.value.name,
-        email: deptAdmin.value.email,
-        oldPassword: deptAdmin.value.oldPassword || undefined,
-        newPassword: deptAdmin.value.newPassword || undefined,
-        type: deptAdmin.value.type,
-      }
-    );
+  // Prepare update payload
+  const updatedData = {
+    name: form.value.name,
+    email: form.value.email,
+    oldPassword: form.value.oldPassword || undefined,
+    newPassword: form.value.newPassword || undefined,
+    type: form.value.type,
+  };
 
-    if (response.status === 200 && response.data.success) {
-      swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Department admin profile updated successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
+  const result = await adminDepartmentStore.updateDepartmentAdmin(
+    departmentAdminId,
+    updatedData
+  );
 
-      await fetchDeptAdmin(); // Refresh data after update
-    } else {
-      swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Oops...",
-        text: response.data.message || "An error occurred.",
-      });
-    }
-  } catch (err) {
-    let errorMessage = err.response?.data?.message || "Something went wrong!";
+  if (result.success) {
+    swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Department admin profile updated successfully!",
+      showConfirmButton: false,
+      timer: 1500,
+    });
+
+    router.push({ name: "Department-Admin" });
+  } else {
     swal.fire({
       position: "top-end",
       icon: "error",
       title: "Oops...",
-      text: errorMessage,
+      text: result.message || "Failed to update department admin.", // ✅ Now showing API error message
     });
   }
 };
@@ -146,22 +129,29 @@ const updateDeptAdmin = async () => {
     <hr class="mt-6" />
 
     <!-- Show loading state -->
-    <p v-if="loading" class="text-3xl pt-6 text-gray-500">Fetching data...</p>
+    <p v-if="adminDepartmentStore.loading" class="text-3xl pt-6 text-gray-500">
+      Fetching data...
+    </p>
 
     <!-- Show error messages -->
-    <p v-else-if="error" class="text-3xl pt-6 text-red-700">{{ error }}</p>
+    <p
+      v-else-if="adminDepartmentStore.error"
+      class="text-3xl pt-6 text-red-700"
+    >
+      {{ adminDepartmentStore.error }}
+    </p>
 
     <!-- Show department admin details if fetched successfully -->
     <div v-else class="pt-6">
       <h1 class="text-3xl pb-2">Profile Information</h1>
 
-      <form @submit.prevent="updateDeptAdmin">
+      <form @submit.prevent="updateDepartmentAdmin">
         <!-- Name -->
         <div class="label">
           <span class="label-text">Name</span>
         </div>
         <input
-          v-model="deptAdmin.name"
+          v-model="form.name"
           type="text"
           placeholder="Type here"
           class="input input-bordered w-full"
@@ -175,7 +165,7 @@ const updateDeptAdmin = async () => {
           <span class="label-text">Email</span>
         </div>
         <input
-          v-model="deptAdmin.email"
+          v-model="form.email"
           type="email"
           placeholder="sample@email.com"
           class="input input-bordered w-full"
@@ -189,7 +179,7 @@ const updateDeptAdmin = async () => {
           <span class="label-text">Old Password</span>
         </div>
         <input
-          v-model="deptAdmin.oldPassword"
+          v-model="form.oldPassword"
           type="password"
           placeholder="Enter old password"
           class="input input-bordered w-full"
@@ -203,7 +193,7 @@ const updateDeptAdmin = async () => {
           <span class="label-text">New Password</span>
         </div>
         <input
-          v-model="deptAdmin.newPassword"
+          v-model="form.newPassword"
           type="password"
           placeholder="Enter new password"
           class="input input-bordered w-full"
@@ -216,10 +206,7 @@ const updateDeptAdmin = async () => {
         <div class="label pt-2">
           <span class="label-text">Account Type</span>
         </div>
-        <select
-          v-model="deptAdmin.type"
-          class="select select-bordered w-full mb-2"
-        >
+        <select v-model="form.type" class="select select-bordered w-full mb-2">
           <option disabled value="">Select a account type</option>
           <option>CS Department</option>
           <option>Engr Department</option>

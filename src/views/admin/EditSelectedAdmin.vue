@@ -89,9 +89,9 @@ const updateAdmin = async () => {
     type: form.value.type,
   };
 
-  const success = await adminStore.updateAdmin(adminId, updatedData);
+  const result = await adminStore.updateAdmin(adminId, updatedData);
 
-  if (success) {
+  if (result.success) {
     swal.fire({
       position: "top-end",
       icon: "success",
@@ -106,7 +106,7 @@ const updateAdmin = async () => {
       position: "top-end",
       icon: "error",
       title: "Oops...",
-      text: "Failed to update admin.",
+      text: result.message || "Failed to update admin.", // ✅ Now showing API error message
     });
   }
 };

@@ -172,13 +172,19 @@ export const useAdminStore = defineStore("adminStore", () => {
 
       if (response.status === 200 && response.data.success) {
         await fetchAdmin(adminId); // Refresh data
-        return true;
+        return { success: true }; // ✅ Return an object instead of just `true`
       } else {
-        return false;
+        return {
+          success: false,
+          message: response.data.message || "Unknown error",
+        };
       }
     } catch (err) {
       console.error("Error updating admin:", err.response?.data || err.message);
-      return false;
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to update admin.",
+      };
     }
   };
 
