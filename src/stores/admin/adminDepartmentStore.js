@@ -55,7 +55,12 @@ export const useAdminDepartmentStore = defineStore(
     };
 
     const resetForm = () => {
-      adminDepartmentForm.value = { name: "", email: "", password: "", type: "" };
+      adminDepartmentForm.value = {
+        name: "",
+        email: "",
+        password: "",
+        type: "",
+      };
     };
 
     const validateForm = () => {
@@ -108,7 +113,7 @@ export const useAdminDepartmentStore = defineStore(
       try {
         const response = await axios.post(
           `${API_BASE_URL}/departmentAdmins/`,
-          adminForm.value
+          adminDepartmentForm.value
         );
         if (response.status === 201 && response.data.success) {
           resetForm();
@@ -138,6 +143,10 @@ export const useAdminDepartmentStore = defineStore(
     };
 
     return {
+      loading,
+      error,
+      departmentAdmins,
+      viewSelectedDepartmentAdmin,
       fetchDepartmentAdmins,
       createDepartmentAdmin,
       adminDepartmentForm,

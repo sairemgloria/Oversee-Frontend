@@ -157,6 +157,8 @@ export const useAdminStore = defineStore("adminStore", () => {
           error.response?.data?.message ||
           "A network or server error occurred.",
       };
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -197,10 +199,10 @@ export const useAdminStore = defineStore("adminStore", () => {
   };
 
   return {
-    admins,
-    viewSelectedAdmin,
     loading,
     error,
+    admins,
+    viewSelectedAdmin,
     fetchAdmins,
     fetchAdmin,
     createAdmin,
