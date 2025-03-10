@@ -1,32 +1,13 @@
 <script setup>
-import { reactive, inject, defineEmits } from "vue";
-import axios from "axios";
+import { inject, defineEmits } from "vue";
+import { useAdminDepartmentStore } from "@/stores/admin/adminDepartmentStore";
 
-defineOptions({
-  inheritAttrs: false,
-});
-
-const swal = inject("$swal"); // Define for Sweetalert2
-const emit = defineEmits(["deptAdminAdded"]); // Define the event emitter
-
-const deptAdmins = reactive({
-  name: "",
-  email: "",
-  password: "",
-  type: "",
-});
-
-const validationErrors = reactive({
-  name: "",
-  email: "",
-  password: "",
-  type: "",
-});
+const swal = inject("$swal");
+const emit = defineEmits(["deptAdminAdded"]);
+const adminDepartmentStore = useAdminDepartmentStore();
 
 const openModal = () => {
-  for (let key in validationErrors) {
-    validationErrors[key] = "";
-  }
+  adminDepartmentStore.clearValidationErrors();
   document.getElementById("my_modal_1").showModal();
 };
 
@@ -34,74 +15,28 @@ const closeModal = () => {
   document.getElementById("my_modal_1").close();
 };
 
-const createDeptAdmin = async () => {
-  // Clear previous validation errors
-  for (let key in validationErrors) {
-    validationErrors[key] = "";
-  }
+const handleCreateDepartmentAdmin = async () => {
+  const result = await adminDepartmentStore.createDepartmentAdmin();
 
-  // Validate fields
-  if (!deptAdmins.name.trim()) validationErrors.name = "Name is required.";
-  if (!deptAdmins.email.trim()) validationErrors.email = "Email is required.";
-  if (!deptAdmins.password.trim())
-    validationErrors.password = "Password is required.";
-  if (!deptAdmins.type.trim())
-    validationErrors.type = "Type selection is required.";
-
-  // Stop if there are validation errors
-  for (let key in validationErrors) {
-    if (validationErrors[key]) return;
-  }
-
-  try {
-    const response = await axios.post("http://localhost:3000/api/departmentAdmins/", {
-      name: deptAdmins.name,
-      email: deptAdmins.email,
-      password: deptAdmins.password,
-      type: deptAdmins.type,
+  if (result.success) {
+    swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Department Admin registered successfully!",
+      showConfirmButton: false,
+      timer: 1500,
     });
 
-    // Check the response status and handle accordingly
-    if (response.status === 201 && response.data.success) {
-      swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Admin registered successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-
-      // Close the modal and reset the form
-      closeModal();
-      for (let key in deptAdmins) {
-        deptAdmins[key] = "";
-      }
-
-      // Emit the new admin data
-      emit("deptAdminAdded", response.data.data);
-    } else {
-      swal.fire({
-        position: "top-end",
-        icon: "error",
-        title: "Oops...",
-        text: response.data.message || "An error occurred.",
-      });
-    }
-  } catch (error) {
-    console.error("API Error:", error.response?.data); // Log the response to debug
-    let errorMessage = "Something went wrong!";
-    if (error.response?.data?.message) {
-      errorMessage = error.response.data.message;
-    }
-
+    emit("deptAdminAdded", result.data);
+    closeModal();
+  } else {
+    console.log(result.message);
     swal.fire({
       position: "top-end",
       icon: "error",
       title: "Oops...",
-      text: errorMessage,
+      text: result.message || "Something went wrong.",
     });
-
-    closeModal();
   }
 };
 </script>
@@ -117,19 +52,22 @@ const createDeptAdmin = async () => {
   <dialog id="my_modal_1" class="modal">
     <div class="modal-box">
       <h3 class="text-lg font-bold">Create Department Admin</h3>
-      <form @submit.prevent="createDeptAdmin" class="p-2">
+      <form @submit.prevent="handleCreateDepartmentAdmin" class="p-2">
         <!-- Name -->
         <div class="label">
           <span class="label-text">Name</span>
         </div>
         <input
-          v-model="deptAdmins.name"
+          v-model="adminDepartmentStore.adminDepartmentForm.name"
           type="text"
           placeholder="Type here"
           class="input input-bordered w-full mb-1"
         />
-        <p v-if="validationErrors.name" class="text-red-500 text-xs">
-          {{ validationErrors.name }}
+        <p
+          v-if="adminDepartmentStore.validationErrors.name"
+          class="text-red-500 text-xs"
+        >
+          {{ adminDepartmentStore.validationErrors.name }}
         </p>
 
         <!-- Email -->
@@ -137,13 +75,16 @@ const createDeptAdmin = async () => {
           <span class="label-text">Email</span>
         </div>
         <input
-          v-model="deptAdmins.email"
+          v-model="adminDepartmentStore.adminDepartmentForm.email"
           type="email"
           placeholder="sample@email.com"
           class="input input-bordered w-full mb-1"
         />
-        <p v-if="validationErrors.email" class="text-red-500 text-xs">
-          {{ validationErrors.email }}
+        <p
+          v-if="adminDepartmentStore.validationErrors.email"
+          class="text-red-500 text-xs"
+        >
+          {{ adminDepartmentStore.validationErrors.email }}
         </p>
 
         <!-- Password -->
@@ -151,13 +92,16 @@ const createDeptAdmin = async () => {
           <span class="label-text">Password</span>
         </div>
         <input
-          v-model="deptAdmins.password"
+          v-model="adminDepartmentStore.adminDepartmentForm.password"
           type="password"
           placeholder="********"
           class="input input-bordered w-full mb-1"
         />
-        <p v-if="validationErrors.password" class="text-red-500 text-xs">
-          {{ validationErrors.password }}
+        <p
+          v-if="adminDepartmentStore.validationErrors.password"
+          class="text-red-500 text-xs"
+        >
+          {{ adminDepartmentStore.validationErrors.password }}
         </p>
 
         <!-- Account Type -->
@@ -165,7 +109,7 @@ const createDeptAdmin = async () => {
           <span class="label-text">Account Type</span>
         </div>
         <select
-          v-model="deptAdmins.type"
+          v-model="adminDepartmentStore.adminDepartmentForm.type"
           class="select select-bordered w-full mb-1"
         >
           <option disabled value="">Select a account type</option>
@@ -173,8 +117,11 @@ const createDeptAdmin = async () => {
           <option>Engr Department</option>
           <option>IT Department</option>
         </select>
-        <p v-if="validationErrors.type" class="text-red-500 text-xs">
-          {{ validationErrors.type }}
+        <p
+          v-if="adminDepartmentStore.validationErrors.type"
+          class="text-red-500 text-xs"
+        >
+          {{ adminDepartmentStore.validationErrors.type }}
         </p>
 
         <!-- Buttons -->
