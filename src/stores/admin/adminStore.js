@@ -80,7 +80,12 @@ export const useAdminStore = defineStore("adminStore", () => {
   };
 
   const resetForm = () => {
-    adminForm.value = { name: "", email: "", password: "", type: "" };
+    Object.assign(adminForm.value, {
+      name: "",
+      email: "",
+      password: "",
+      type: "",
+    });
   };
 
   const validateForm = () => {
@@ -94,14 +99,16 @@ export const useAdminStore = defineStore("adminStore", () => {
       isValid = false;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!adminForm.value.email.trim()) {
       validationErrors.value.email = "Email is required.";
       missingFields.push("Email");
       isValid = false;
-    } else if (!emailRegex.test(adminForm.value.email.trim())) {
-      validationErrors.value.email = "Invalid email format.";
-      return { isValid: false, message: "Invalid email format." };
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(adminForm.value.email.trim())) {
+        validationErrors.value.email = "Invalid email format.";
+        isValid = false;
+      }
     }
 
     if (!adminForm.value.password.trim()) {
@@ -119,8 +126,10 @@ export const useAdminStore = defineStore("adminStore", () => {
     return {
       isValid,
       message: missingFields.length
-        ? `${missingFields.join(", ")} is required.`
-        : "",
+        ? `${missingFields.join(", ")} ${
+            missingFields.length > 1 ? "are" : "is"
+          } required.`
+        : validationErrors.value.email || "", // Include invalid email message
     };
   };
 
