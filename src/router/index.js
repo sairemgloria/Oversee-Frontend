@@ -14,6 +14,12 @@ const routes = [
     name: "Employees",
     component: () => import("@/views/admin/EmployeesView.vue"),
   },
+  /* Role Section */
+  {
+    path: "/roles",
+    name: "Roles",
+    component: () => import("@/views/admin/RolesView.vue"),
+  },
   /* Administrator Section */
   {
     path: "/superadmin",

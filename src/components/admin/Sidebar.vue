@@ -56,7 +56,7 @@ const emit = defineEmits(["toggle-sidebar"]);
         </RouterLink>
 
         <RouterLink
-          to=""
+          :to="{ name: 'Roles' }"
           class="block px-4 py-3 rounded hover:text-gray-200 hover:bg-gray-500 flex items-center space-x-2"
         >
           <i class="bx bxs-wrench bx-sm" />
