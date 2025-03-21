@@ -1,37 +1,13 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import axios from "axios";
+import { onMounted } from "vue";
+import { useCardsStore } from "@/stores/admin/cardsStore";
 
-const deptAdminCount = ref(0);
-const loading = ref(false);
-const error = ref(null);
+const cardsStore = useCardsStore(); // Use pinia store
 
-const fetchDeptAdminCount = async () => {
-  loading.value = true;
-  error.value = null;
-
-  try {
-    const response = await axios.get(
-      "http://localhost:3000/api/departmentAdmins/count"
-    );
-
-    if (!response.data.success) {
-      error.value = response.data.message;
-      deptAdminCount.value = 0;
-      return;
-    }
-
-    deptAdminCount.value = response.data.count; // ✅ Store count instead of data
-  } catch (err) {
-    error.value =
-      err.response?.data?.message ||
-      "Error: Failed to load department admin count.";
-  } finally {
-    loading.value = false;
-  }
-};
-
-onMounted(fetchDeptAdminCount);
+onMounted(() => {
+  cardsStore.countRoles();
+  cardsStore.countDeptAdmin();
+});
 </script>
 
 <template>
@@ -95,7 +71,11 @@ onMounted(fetchDeptAdminCount);
     <div class="bg-base-200 p-6">
       <div class="flex items-center justify-between">
         <div class="col">
-          <div class="text-3xl font-semibold">7</div>
+          <div class="text-3xl font-semibold">
+            <p v-if="cardsStore.loading">Loading...</p>
+            <p v-else-if="cardsStore.error">{{ cardsStore.error }}</p>
+            <p v-else>{{ cardsStore.rolesCount ?? 0}}</p>
+          </div>
           <div class="text-gray-500">Roles</div>
         </div>
         <i class="logo bx bx-wrench bx-lg" />
@@ -107,9 +87,9 @@ onMounted(fetchDeptAdminCount);
       <div class="flex items-center justify-between">
         <div class="col">
           <div class="text-3xl font-semibold">
-            <p v-if="loading">Loading...</p>
-            <p v-else-if="error">{{ error }}</p>
-            <p v-else>{{ deptAdminCount }}</p>
+            <p v-if="cardsStore.loading">Loading...</p>
+            <p v-else-if="cardsStore.error">{{ cardsStore.error }}</p>
+            <p v-else>{{ cardsStore.deptAdminCount ?? 0 }}</p>
           </div>
           <div class="text-gray-500">Administrator</div>
         </div>
