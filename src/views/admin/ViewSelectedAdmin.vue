@@ -31,7 +31,7 @@ onMounted(() => {
 
     <!-- Show error messages (Invalid ID, Not Found, or Server Error) -->
     <p v-else-if="adminStore.error" class="text-3xl pt-6 text-red-700">
-      {{ error }}
+      {{ adminStore.error }}
     </p>
 
     <!-- Show admin details if fetched successfully -->
