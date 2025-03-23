@@ -7,8 +7,8 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const useAdminStore = defineStore("adminStore", () => {
   const loading = ref(false); // set loading to false
   const error = ref(null); // set error to null
-  const admins = ref([]); // store all admins
-  const viewSelectedAdmin = ref(null);
+  const admins = ref([]); // store admins in an array
+  const viewSelectedAdmin = ref(null); // store selected admin
 
   /* Function to get all admins */
   const fetchAdmins = async () => {

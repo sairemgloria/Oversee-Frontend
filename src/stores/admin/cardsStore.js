@@ -5,8 +5,8 @@ import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const useCardsStore = defineStore("cardsStore", () => {
-  const loading = ref(false);
-  const error = ref(null);
+  const loading = ref(false); // Set loading to false
+  const error = ref(null); // Set error to null
   const rolesCount = ref(null); // Store roles count
   const deptAdminCount = ref(null); // Store department admin count
 
