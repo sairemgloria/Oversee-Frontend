@@ -1,14 +1,12 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from "@/utils/admin/axiosInstance"; // Use the centralized API instance
 
 export const useAdminStore = defineStore("adminStore", () => {
-  const loading = ref(false); // set loading to false
-  const error = ref(null); // set error to null
-  const admins = ref([]); // store admins in an array
-  const viewSelectedAdmin = ref(null); // store selected admin
+  const loading = ref(false);
+  const error = ref(null);
+  const admins = ref([]);
+  const viewSelectedAdmin = ref(null);
 
   /* Function to get all admins */
   const fetchAdmins = async () => {
@@ -16,44 +14,41 @@ export const useAdminStore = defineStore("adminStore", () => {
     error.value = null;
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/admins/`);
+      const response = await api.get("/admins/");
       if (response.data.success) {
         admins.value = response.data.data;
       } else {
         error.value = response.data.message;
       }
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Error: Failed to load admins.";
+      error.value = err.response?.data?.message || "Error: Failed to load admins.";
     } finally {
       loading.value = false;
     }
   };
 
-  /* Function to view selected admin */
+  /* Function to fetch a single admin */
   const fetchAdmin = async (adminId) => {
     loading.value = true;
     error.value = null;
     viewSelectedAdmin.value = null; // Ensure previous data is cleared
 
-    // Frontend validation: Check if the ID is valid before making an API call
-    if (!adminId.match(/^[0-9a-fA-F]{24}$/)) {
+    // Validate ID format before making an API call
+    if (!/^[0-9a-fA-F]{24}$/.test(adminId)) {
       error.value = "Invalid Admin ID.";
       loading.value = false;
       return;
     }
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/admins/${adminId}`);
+      const response = await api.get(`/admins/${adminId}`);
       if (response.data.success) {
         viewSelectedAdmin.value = response.data.data;
       } else {
-        error.value = response.data.message || "Admin not found";
+        error.value = response.data.message || "Admin not found.";
       }
     } catch (err) {
-      console.error(`Error: ${err}`);
-      error.value =
-        err.response?.data?.message || "Failed to load admin details.";
+      error.value = err.response?.data?.message || "Failed to load admin details.";
     } finally {
       loading.value = false;
     }
@@ -80,12 +75,12 @@ export const useAdminStore = defineStore("adminStore", () => {
   };
 
   const resetForm = () => {
-    Object.assign(adminForm.value, {
+    adminForm.value = {
       name: "",
       email: "",
       password: "",
       type: "",
-    });
+    };
   };
 
   const validateForm = () => {
@@ -126,25 +121,19 @@ export const useAdminStore = defineStore("adminStore", () => {
     return {
       isValid,
       message: missingFields.length
-        ? `${missingFields.join(", ")} ${
-            missingFields.length > 1 ? "are" : "is"
-          } required.`
-        : validationErrors.value.email || "", // Include invalid email message
+        ? `${missingFields.join(", ")} ${missingFields.length > 1 ? "are" : "is"} required.`
+        : validationErrors.value.email || "",
     };
   };
 
   const createAdmin = async () => {
     const validation = validateForm();
     if (!validation.isValid) {
-      return { success: false, message: validation.message }; // Short message like "Name, Email is required."
+      return { success: false, message: validation.message };
     }
 
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/admins/`,
-        adminForm.value
-      );
-
+      const response = await api.post("/admins/", adminForm.value);
       if (response.status === 201 && response.data.success) {
         resetForm();
         await fetchAdmins();
@@ -152,43 +141,33 @@ export const useAdminStore = defineStore("adminStore", () => {
       } else {
         return {
           success: false,
-          message:
-            response.data.message ||
-            "Failed to create admin. Please try again.",
+          message: response.data.message || "Failed to create admin. Please try again.",
         };
       }
-    } catch (error) {
-      console.error("API Error:", error.response?.data);
+    } catch (err) {
       return {
         success: false,
-        message:
-          error.response?.data?.message ||
-          "A network or server error occurred.",
+        message: err.response?.data?.message || "A network or server error occurred.",
       };
     } finally {
       loading.value = false;
     }
   };
 
-  /* Function update selected admin */
+  /* Function to update an admin */
   const updateAdmin = async (adminId, updatedData) => {
     try {
-      const response = await axios.put(
-        `${API_BASE_URL}/admins/${adminId}`,
-        updatedData
-      );
-
+      const response = await api.put(`/admins/${adminId}`, updatedData);
       if (response.status === 200 && response.data.success) {
-        await fetchAdmin(adminId); // Refresh data
-        return { success: true }; // ✅ Return an object instead of just `true`
+        await fetchAdmin(adminId);
+        return { success: true };
       } else {
         return {
           success: false,
-          message: response.data.message || "Unknown error",
+          message: response.data.message || "Unknown error occurred.",
         };
       }
     } catch (err) {
-      console.error("Error updating admin:", err.response?.data || err.message);
       return {
         success: false,
         message: err.response?.data?.message || "Failed to update admin.",
@@ -196,19 +175,18 @@ export const useAdminStore = defineStore("adminStore", () => {
     }
   };
 
+  /* Function to delete an admin */
   const deleteAdmin = async (adminId) => {
     try {
-      await axios.delete(`${API_BASE_URL}/admins/${adminId}`);
+      await api.delete(`/admins/${adminId}`);
 
-      // ✅ Instantly update the UI by removing the deleted admin
+      // Update UI instantly
       admins.value = admins.value.filter((admin) => admin._id !== adminId);
 
-      // ✅ Fetch fresh data from the backend to ensure pagination updates correctly
+      // Fetch fresh data for pagination updates
       await fetchAdmins();
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Error: Failed to delete admin.";
-      console.error("Error deleting admin:", err.response?.data || err.message);
+      error.value = err.response?.data?.message || "Error: Failed to delete admin.";
     }
   };
 
@@ -225,5 +203,6 @@ export const useAdminStore = defineStore("adminStore", () => {
     adminForm,
     validationErrors,
     clearValidationErrors,
+    resetForm,
   };
 });
