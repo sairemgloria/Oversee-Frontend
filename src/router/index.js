@@ -14,6 +14,18 @@ const routes = [
     name: "Employees",
     component: () => import("@/views/admin/EmployeesView.vue"),
   },
+  /* Attendance Section */
+  {
+    path: "/attendance",
+    name: "Attendance",
+    component: () => import("@/views/admin/AttendanceView.vue"),
+  },
+  /* Department Section */
+  {
+    path: "/department",
+    name: "Department",
+    component: () => import("@/views/admin/DepartmentView.vue"),
+  },
   /* Role Section */
   {
     path: "/roles",
