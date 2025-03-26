@@ -40,7 +40,7 @@ const emit = defineEmits(["toggle-sidebar"]);
         </RouterLink>
 
         <RouterLink
-          to=""
+          :to="{ name: 'Attendance' }"
           class="block px-4 py-3 rounded hover:text-gray-200 hover:bg-gray-500 flex items-center space-x-2"
         >
           <i class="bx bxs-calendar bx-sm" />
@@ -48,7 +48,7 @@ const emit = defineEmits(["toggle-sidebar"]);
         </RouterLink>
 
         <RouterLink
-          to=""
+          :to="{ name: 'Department' }"
           class="block px-4 py-3 rounded hover:text-gray-200 hover:bg-gray-500 flex items-center space-x-2"
         >
           <i class="bx bxs-map-alt bx-sm" />
