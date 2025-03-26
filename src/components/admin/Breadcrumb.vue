@@ -56,6 +56,12 @@ const currentRouteName = computed(() => useRoute().name);
       <li v-if="currentRouteName === 'Employees'">
         <p class="block transition hover:text-gray-400">Employees</p>
       </li>
+      <li v-if="currentRouteName === 'Attendance'">
+        <p class="block transition hover:text-gray-400">Attendance</p>
+      </li>
+      <li v-if="currentRouteName === 'Department'">
+        <p class="block transition hover:text-gray-400">Department</p>
+      </li>
       <li v-if="currentRouteName === 'Superadmin'">
         <p class="block transition hover:text-gray-400">Superadmin</p>
       </li>
