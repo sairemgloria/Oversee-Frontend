@@ -1,15 +1,13 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import api from "@/utils/admin/axiosInstance"; // Use the centralized API instance
 
 export const useAdminDepartmentStore = defineStore(
   "adminDepartmentStore",
   () => {
-    const loading = ref(false); // set loading to false
-    const error = ref(null); // set error to null
-    const departmentAdmins = ref([]); // store all department admins
+    const loading = ref(false);
+    const error = ref(null);
+    const departmentAdmins = ref([]);
     const viewSelectedDepartmentAdmin = ref(null);
 
     /* Function to get all department admins */
@@ -18,7 +16,7 @@ export const useAdminDepartmentStore = defineStore(
       error.value = null;
 
       try {
-        const response = await axios.get(`${API_BASE_URL}/departmentAdmins/`);
+        const response = await api.get("/department-admins");
         if (response.data.success) {
           departmentAdmins.value = response.data.data;
         } else {
@@ -40,15 +38,15 @@ export const useAdminDepartmentStore = defineStore(
       viewSelectedDepartmentAdmin.value = null; // Ensure previous data is cleared
 
       // Frontend validation: Check if the ID is valid before making an API call
-      if (!departmentAdminId.match(/^[0-9a-fA-F]{24}$/)) {
+      if (!/^[0-9a-fA-F]{24}$/.test(departmentAdminId)) {
         error.value = "Invalid Department Admin ID.";
         loading.value = false;
         return;
       }
 
       try {
-        const response = await axios.get(
-          `${API_BASE_URL}/departmentAdmins/${departmentAdminId}`
+        const response = await api.get(
+          `/department-admins/${departmentAdminId}`
         );
         if (response.data.success) {
           viewSelectedDepartmentAdmin.value = response.data.data;
@@ -146,8 +144,8 @@ export const useAdminDepartmentStore = defineStore(
         return { success: false, message: validation.message }; // Short message like "Name, Email is required."
       }
       try {
-        const response = await axios.post(
-          `${API_BASE_URL}/departmentAdmins/`,
+        const response = await api.post(
+          `/department-admins/`,
           adminDepartmentForm.value
         );
         if (response.status === 201 && response.data.success) {
@@ -180,8 +178,8 @@ export const useAdminDepartmentStore = defineStore(
     /* Function to update selected department admin */
     const updateDepartmentAdmin = async (departmentAdminId, updatedData) => {
       try {
-        const response = await axios.put(
-          `${API_BASE_URL}/departmentAdmins/${departmentAdminId}`,
+        const response = await api.put(
+          `/department-admins/${departmentAdminId}`,
           updatedData
         );
 
@@ -209,9 +207,7 @@ export const useAdminDepartmentStore = defineStore(
     /* Function to delete selected department admin */
     const deleteDepartmentAdmin = async (departmentAdminId) => {
       try {
-        await axios.delete(
-          `${API_BASE_URL}/departmentAdmins/${departmentAdminId}`
-        );
+        await api.delete(`/departmetn-admins/${departmentAdminId}`);
 
         // ✅ Instantly update the UI by removing the deleted department admin
         departmentAdmins.value = departmentAdmins.value.filter(

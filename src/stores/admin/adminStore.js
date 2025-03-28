@@ -21,7 +21,8 @@ export const useAdminStore = defineStore("adminStore", () => {
         error.value = response.data.message;
       }
     } catch (err) {
-      error.value = err.response?.data?.message || "Error: Failed to load admins.";
+      error.value =
+        err.response?.data?.message || "Error: Failed to load admins.";
     } finally {
       loading.value = false;
     }
@@ -48,7 +49,8 @@ export const useAdminStore = defineStore("adminStore", () => {
         error.value = response.data.message || "Admin not found.";
       }
     } catch (err) {
-      error.value = err.response?.data?.message || "Failed to load admin details.";
+      error.value =
+        err.response?.data?.message || "Failed to load admin details.";
     } finally {
       loading.value = false;
     }
@@ -121,7 +123,9 @@ export const useAdminStore = defineStore("adminStore", () => {
     return {
       isValid,
       message: missingFields.length
-        ? `${missingFields.join(", ")} ${missingFields.length > 1 ? "are" : "is"} required.`
+        ? `${missingFields.join(", ")} ${
+            missingFields.length > 1 ? "are" : "is"
+          } required.`
         : validationErrors.value.email || "",
     };
   };
@@ -133,7 +137,7 @@ export const useAdminStore = defineStore("adminStore", () => {
     }
 
     try {
-      const response = await api.post("/admins/", adminForm.value);
+      const response = await api.post(`/admins/`, adminForm.value);
       if (response.status === 201 && response.data.success) {
         resetForm();
         await fetchAdmins();
@@ -141,13 +145,16 @@ export const useAdminStore = defineStore("adminStore", () => {
       } else {
         return {
           success: false,
-          message: response.data.message || "Failed to create admin. Please try again.",
+          message:
+            response.data.message ||
+            "Failed to create admin. Please try again.",
         };
       }
     } catch (err) {
       return {
         success: false,
-        message: err.response?.data?.message || "A network or server error occurred.",
+        message:
+          err.response?.data?.message || "A network or server error occurred.",
       };
     } finally {
       loading.value = false;
@@ -186,7 +193,8 @@ export const useAdminStore = defineStore("adminStore", () => {
       // Fetch fresh data for pagination updates
       await fetchAdmins();
     } catch (err) {
-      error.value = err.response?.data?.message || "Error: Failed to delete admin.";
+      error.value =
+        err.response?.data?.message || "Error: Failed to delete admin.";
     }
   };
 
