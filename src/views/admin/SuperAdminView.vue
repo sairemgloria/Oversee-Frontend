@@ -18,7 +18,7 @@ onMounted(adminStore.fetchAdmins);
 const admins = computed(() => adminStore.admins);
 
 // Delete admin function (UI logic only)
-const deleteAdmin = async (id) => {
+const deleteAdmin = async (adminId) => {
   try {
     const result = await swal.fire({
       title: "Are you sure?",
@@ -31,7 +31,7 @@ const deleteAdmin = async (id) => {
     });
 
     if (result.isConfirmed) {
-      await adminStore.deleteAdmin(id);
+      await adminStore.deleteAdmin(adminId);
       // ✅ Reset pagination correctly
       if (paginatedItems.value.length === 0 && currentPage.value > 1) {
         currentPage.value -= 1; // Go back to the previous page if the current one is empty
