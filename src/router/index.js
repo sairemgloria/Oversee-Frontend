@@ -32,6 +32,16 @@ const routes = [
     name: "Roles",
     component: () => import("@/views/admin/RolesView.vue"),
   },
+  {
+    path: "/view-role/:id",
+    name: "view-role",
+    component: () => import("@/views/admin/ViewSelectedRoleView.vue"),
+  },
+  {
+    path: "/edit-role/:id",
+    name: "edit-role",
+    component: () => import("@/views/admin/EditSelectedRoleView.vue"),
+  },
   /* Administrator Section */
   {
     path: "/superadmin",

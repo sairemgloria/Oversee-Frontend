@@ -14,7 +14,7 @@ export const useAdminStore = defineStore("adminStore", () => {
     error.value = null;
 
     try {
-      const response = await api.get("/admins/");
+      const response = await api.get(`/admins/`);
       if (response.data.success) {
         admins.value = response.data.data;
       } else {
