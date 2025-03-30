@@ -82,6 +82,71 @@ export const useRoleStore = defineStore("roleStore", () => {
     };
   };
 
+  const validateForm = () => {
+    clearValidationErrors();
+    let isValid = true;
+    let missingFields = [];
+
+    if (!roleForm.value.name.trim()) {
+      validationErrors.value.name = "Name is required.";
+      missingFields.push("Name");
+      isValid = false;
+    }
+
+    if (!roleForm.value.codeId.trim()) {
+      validationErrors.value.codeId = "Role Code is required.";
+      missingFields.push("Role Code");
+      isValid = false;
+    }
+
+    if (!roleForm.value.departmentDesignation.trim()) {
+      validationErrors.value.departmentDesignation =
+        "Department Designation is required.";
+      missingFields.push("Department Designation");
+      isValid = false;
+    }
+
+    return {
+      isValid,
+      message: missingFields.length
+        ? `${missingFields.join(", ")} ${
+            missingFields.length > 1 ? "are" : "is"
+          } required.`
+        : "",
+    };
+  };
+
+  const createRole = async () => {
+    const validation = validateForm();
+
+    if (!validation.isValid) {
+      return { success: false, message: validation.message };
+    }
+
+    try {
+      const response = await api.post(`/roles/`, roleForm.value);
+
+      if (response.status === 201 && response.data.success) {
+        resetForm();
+        await fetchRoles();
+        return { success: true, data: response.data.data };
+      } else {
+        return {
+          success: false,
+          message:
+            response.data.message || "Failed to create role. Please try again.",
+        };
+      }
+    } catch (err) {
+      return {
+        success: false,
+        message: response.data.message || "A network or server error occurred.",
+      };
+    } finally {
+      loading.value = false;
+    }
+  };
+
   return {
     loading,
     error,
@@ -93,5 +158,6 @@ export const useRoleStore = defineStore("roleStore", () => {
     validationErrors,
     clearValidationErrors,
     resetForm,
+    createRole,
   };
 });
