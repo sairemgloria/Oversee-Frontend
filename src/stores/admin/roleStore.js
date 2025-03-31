@@ -150,6 +150,12 @@ export const useRoleStore = defineStore("roleStore", () => {
 
   /* Function to update selected role */
   const updateRole = async (roleId, updatedData) => {
+    const validation = validateForm();
+
+    if (!validation.isValid) {
+      return { success: false, message: validation.message };
+    }
+
     try {
       const response = await api.put(`/roles/${roleId}`, updatedData);
 
