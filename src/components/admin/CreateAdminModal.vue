@@ -111,7 +111,7 @@ const handleCreateAdmin = async () => {
           {{ adminStore.validationErrors.type }}
         </p>
 
-        <div class="flex justify-end space-x-2 mt-2">
+        <div class="flex justify-end space-x-2 mt-4">
           <button type="button" class="btn" @click="closeModal">Cancel</button>
           <button type="submit" class="btn bg-success text-white">
             Create
