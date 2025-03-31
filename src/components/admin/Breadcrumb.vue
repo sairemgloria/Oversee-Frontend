@@ -83,6 +83,12 @@ const currentRouteName = computed(() => useRoute().name);
       <li v-if="currentRouteName === 'Roles'">
         <p class="block transition hover:text-gray-400">Roles</p>
       </li>
+      <li v-if="currentRouteName === 'view-role'">
+        <p class="block transition hover:text-gray-400">View Role</p>
+      </li>
+      <li v-if="currentRouteName === 'edit-role'">
+        <p class="block transition hover:text-gray-400">Edit Role</p>
+      </li>
       <!-- Add more dynamic breadcrumb items here based on routes -->
     </ol>
   </nav>

@@ -32,7 +32,7 @@ export const useRoleStore = defineStore("roleStore", () => {
   const fetchRole = async (roleId) => {
     loading.value = true;
     error.value = null;
-    viewSelectedRole = null;
+    viewSelectedRole.value = null; // Ensure previous data is cleared
 
     /* Validate ID format before making an API call */
     if (!/^[0-9a-fA-F]{24}$/.test(roleId)) {
@@ -44,7 +44,7 @@ export const useRoleStore = defineStore("roleStore", () => {
     try {
       const response = await api.get(`/roles/${roleId}`);
       if (response.data.success) {
-        viewSelectedRole.value = response.data.success;
+        viewSelectedRole.value = response.data.data;
       } else {
         error.value = response.data.message;
       }
@@ -116,6 +116,7 @@ export const useRoleStore = defineStore("roleStore", () => {
     };
   };
 
+  /* Function to create new role */
   const createRole = async () => {
     const validation = validateForm();
 
@@ -147,6 +148,44 @@ export const useRoleStore = defineStore("roleStore", () => {
     }
   };
 
+  /* Function to update selected role */
+  const updateRole = async (roleId, updatedData) => {
+    try {
+      const response = await api.put(`/roles/${roleId}`, updatedData);
+
+      if (response.status === 200 && response.data.success) {
+        await fetchRole(roleId);
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Unknown error occurred.",
+        };
+      }
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to update role.",
+      };
+    }
+  };
+
+  /* Function to delete role */
+  const deleteRole = async (roleId) => {
+    try {
+      await api.delete(`/roles/${roleId}`);
+
+      // Update UI instantly
+      roles.value = roles.value.filter((role) => role._id !== roleId);
+
+      // Fetch fresh data for pagination updates
+      await fetchRoles();
+    } catch (err) {
+      error.value =
+        err.response?.data?.message || "Error: Failed to delete role.";
+    }
+  };
+
   return {
     loading,
     error,
@@ -159,5 +198,7 @@ export const useRoleStore = defineStore("roleStore", () => {
     clearValidationErrors,
     resetForm,
     createRole,
+    updateRole,
+    deleteRole,
   };
 });
