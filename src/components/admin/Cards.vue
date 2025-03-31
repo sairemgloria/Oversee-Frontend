@@ -60,7 +60,11 @@ onMounted(() => {
     <div class="bg-base-200 p-6">
       <div class="flex items-center justify-between">
         <div class="col">
-          <div class="text-3xl font-semibold">5</div>
+          <div class="text-3xl font-semibold">
+            <p v-if="cardsStore.loading">Loading...</p>
+            <p v-else-if="cardsStore.error">{{ cardsStore.error }}</p>
+            <p v-else>{{ cardsStore.departmentsCount ?? 0}}</p>
+          </div>
           <div class="text-gray-500">Departments</div>
         </div>
         <i class="logo bx bx-map-alt bx-lg" />
