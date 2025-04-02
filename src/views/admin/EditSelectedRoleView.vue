@@ -14,6 +14,7 @@ const roleId = route.params.id;
 onMounted(async () => {
   if (roleId) {
     await roleStore.fetchRole(roleId);
+    roleStore.clearValidationErrors();
     roleStore.roleForm = { ...roleStore.viewSelectedRole };
   }
 });
@@ -36,7 +37,7 @@ const handleUpdateRole = async () => {
       position: "top-end",
       icon: "error",
       title: "Oops...",
-      text: result.message || "Something went wrong.",
+      text: result.message || "Failed to update role.",
     });
   }
 };

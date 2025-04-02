@@ -7,6 +7,7 @@ const emit = defineEmits(["roleAdded"]);
 const roleStore = useRoleStore();
 
 const openModal = () => {
+  roleStore.resetForm();
   roleStore.clearValidationErrors();
   document.getElementById("my_modal_1").showModal();
 };
