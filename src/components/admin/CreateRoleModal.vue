@@ -85,7 +85,7 @@ const handleCreateRole = async () => {
           v-model="roleStore.roleForm.departmentDesignation"
           class="select select-bordered w-full mb-1"
         >
-          <option disabled value="">Select a role</option>
+          <option disabled value="">Select a designation</option>
           <option>Superadmin</option>
           <option>IT Department</option>
         </select>

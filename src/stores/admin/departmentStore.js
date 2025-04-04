@@ -17,18 +17,16 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
       const response = await api.get(`/departments`);
       if (response.data.success) {
         departments.value = response.data.data;
-
       } else {
         error.value = response.data.message;
       }
     } catch (err) {
       error.value =
         err.response?.data?.message || "Error: Failed to load departments.";
-    }
-    finally {
+    } finally {
       loading.value = false;
     }
-  }
+  };
 
   /* Function to get selected department */
   const fetchDepartment = async (departmentId) => {
@@ -52,11 +50,12 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
       }
     } catch (err) {
       error.value =
-        err.response?.data?.message || "Error: Failed to load selected department.";
+        err.response?.data?.message ||
+        "Error: Failed to load selected department.";
     } finally {
       loading.value = false;
     }
-  }
+  };
 
   const departmentForm = ref({
     name: "",
@@ -128,10 +127,11 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
     return {
       isValid,
       message: missingFields.length
-        ? `${missingFields.join(", ")} ${missingFields.length > 1 ? "are" : "is"
-        } required.`
+        ? `${missingFields.join(", ")} ${
+            missingFields.length > 1 ? "are" : "is"
+          } required.`
         : "",
-    }
+    };
   };
 
   /* Function to create new department */
@@ -160,7 +160,51 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
     } finally {
       loading.value = false;
     }
-  }
+  };
+
+  /* Function to update selected department */
+  const updateDepartment = async (deptId, updatedData) => {
+    const validation = validateForm();
+
+    if (!validation.isValid) {
+      return { success: false, message: validation.message };
+    }
+
+    try {
+      const response = await api.put(`/departments/${deptId}`, updatedData);
+      if (response.status === 200 && response.data.success) {
+        await fetchDepartment(deptId);
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          message: response.data.message || "Unknown error occurred.",
+        };
+      }
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to update department",
+      };
+    }
+  };
+
+  const deleteDepartment = async (deptId) => {
+    try {
+      await api.delete(`/roles/${deptId}`);
+
+      departments.value = departments.value.filter(
+        (department) => department_.id !== deptId
+      );
+
+      await fetchDepartments();
+    } catch (err) {
+      return {
+        success: false,
+        message: err.response?.data?.message || "Failed to delete department",
+      };
+    }
+  };
 
   return {
     loading,
@@ -173,5 +217,7 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
     validationErrors,
     clearValidationErrors,
     resetForm,
+    updateDepartment,
+    deleteDepartment,
   };
 });
