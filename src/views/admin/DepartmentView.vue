@@ -56,59 +56,60 @@ watch(searchQuery, () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <!-- Employees View Header -->
-    <div class="mb-4">
-      <h1 class="text-3xl font-bold flex items-center">Department View</h1>
+  <div>
+    <div class="p-6">
+      <!-- Employees View Header -->
+      <div class="mb-4">
+        <h1 class="text-3xl font-bold flex items-center">Department View</h1>
+      </div>
+
+      <Breadcrumb />
+
+      <hr class="mt-6" />
     </div>
 
-    <Breadcrumb />
+    <div class="px-6">
+      <div class="flex flex-col md:flex-row gap-4 justify-between mb-6">
+        <CreateDepartmentModal />
+        <SearchBar v-model="searchQuery" />
+      </div>
 
-    <hr class="mt-6" />
-  </div>
+      <div class="overflow-x-auto">
+        <!-- Use the reusable component for loading and error handling -->
+        <LoadingError
+          :loading="departmentStore.loading"
+          :error="departmentStore.error"
+        />
 
-  <div class="px-6">
-    <div class="flex flex-col md:flex-row gap-4 justify-between mb-6">
-      <CreateDepartmentModal />
-      <SearchBar v-model="searchQuery" />
-    </div>
-
-    <div class="overflow-x-auto">
-      <!-- Use the reusable component for loading and error handling -->
-      <LoadingError
-        :loading="departmentStore.loading"
-        :error="departmentStore.error"
-      />
-
-      <!-- datatable -->
-      <table
-        class="table w-full border-collapse border border-gray-300"
-        v-if="!departmentStore.loading && !departmentStore.error"
-      >
-        <thead>
-          <tr class="bg-base-300">
-            <th>#</th>
-            <th>Name</th>
-            <th>Time In</th>
-            <th>Time Out</th>
-            <th>Over Time</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody v-if="filteredItems.length > 0">
-          <tr
-            v-for="(department, index) in paginatedItems"
-            :key="department.id"
-          >
-            <td>{{ (currentPage - 1) * 5 + index + 1 }}</td>
-            <td>{{ department.name }}</td>
-            <td>{{ department.timeIn }}</td>
-            <td>{{ department.timeOut }}</td>
-            <td>{{ department.overtime }}</td>
-            <td
-              class="flex flex-col justify-start md:flex-row gap-2 items-center"
+        <!-- datatable -->
+        <table
+          class="table w-full border-collapse border border-gray-300"
+          v-if="!departmentStore.loading && !departmentStore.error"
+        >
+          <thead>
+            <tr class="bg-base-300">
+              <th>#</th>
+              <th>Name</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Over Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody v-if="filteredItems.length > 0">
+            <tr
+              v-for="(department, index) in paginatedItems"
+              :key="department.id"
             >
-              <!-- <RouterLink
+              <td>{{ (currentPage - 1) * 5 + index + 1 }}</td>
+              <td>{{ department.name }}</td>
+              <td>{{ department.timeInPHT }}</td>
+              <td>{{ department.timeOutPHT }}</td>
+              <td>{{ department.overtimePHT }}</td>
+              <td
+                class="flex flex-col justify-start md:flex-row gap-2 items-center"
+              >
+                <!-- <RouterLink
                 :to="{
                   name: 'view-department',
                   params: { id: department._id },
@@ -133,48 +134,49 @@ watch(searchQuery, () => {
               >
                 Delete
               </a> -->
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else>
-          <tr>
-            <td colspan="4" class="text-center py-4">No record found.</td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr class="bg-base-300">
-            <th>#</th>
-            <th>Name</th>
-            <th>Time In</th>
-            <th>Time Out</th>
-            <th>Over Time</th>
-            <th>Actions</th>
-          </tr>
-        </tfoot>
-      </table>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else>
+            <tr>
+              <td colspan="4" class="text-center py-4">No record found.</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="bg-base-300">
+              <th>#</th>
+              <th>Name</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Over Time</th>
+              <th>Actions</th>
+            </tr>
+          </tfoot>
+        </table>
 
-      <!-- Pagination -->
-      <div
-        v-if="filteredItems.length > 0 && departments.length > 0"
-        class="flex justify-center my-4 md:justify-end my-8"
-      >
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="px-4 py-2 mx-1 border rounded disabled:opacity-50"
+        <!-- Pagination -->
+        <div
+          v-if="filteredItems.length > 0 && departments.length > 0"
+          class="flex justify-center my-4 md:justify-end my-8"
         >
-          Previous
-        </button>
-        <span class="px-4 py-2"
-          >Page {{ currentPage }} of {{ totalPages }}</span
-        >
-        <button
-          @click="nextPage"
-          :disabled="currentPage === totalPages"
-          class="px-4 py-2 mx-1 border rounded disabled:opacity-50"
-        >
-          Next
-        </button>
+          <button
+            @click="prevPage"
+            :disabled="currentPage === 1"
+            class="px-4 py-2 mx-1 border rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span class="px-4 py-2"
+            >Page {{ currentPage }} of {{ totalPages }}</span
+          >
+          <button
+            @click="nextPage"
+            :disabled="currentPage === totalPages"
+            class="px-4 py-2 mx-1 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   </div>
