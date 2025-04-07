@@ -62,6 +62,12 @@ const currentRouteName = computed(() => useRoute().name);
       <li v-if="currentRouteName === 'Department'">
         <p class="block transition hover:text-gray-400">Department</p>
       </li>
+      <li v-if="currentRouteName === 'view-department'">
+        <p class="block transition hover:text-gray-400">View Department</p>
+      </li>
+      <li v-if="currentRouteName === 'edit-department'">
+        <p class="block transition hover:text-gray-400">Edit Department</p>
+      </li>
       <li v-if="currentRouteName === 'Superadmin'">
         <p class="block transition hover:text-gray-400">Superadmin</p>
       </li>
@@ -75,10 +81,14 @@ const currentRouteName = computed(() => useRoute().name);
         <p class="block transition hover:text-gray-400">Department Admin</p>
       </li>
       <li v-if="currentRouteName === 'view-department-admin'">
-        <p class="block transition hover:text-gray-400">View Department Admin</p>
+        <p class="block transition hover:text-gray-400">
+          View Department Admin
+        </p>
       </li>
       <li v-if="currentRouteName === 'edit-department-admin'">
-        <p class="block transition hover:text-gray-400">Edit Department Admin</p>
+        <p class="block transition hover:text-gray-400">
+          Edit Department Admin
+        </p>
       </li>
       <li v-if="currentRouteName === 'Roles'">
         <p class="block transition hover:text-gray-400">Roles</p>

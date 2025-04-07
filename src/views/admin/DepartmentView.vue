@@ -109,7 +109,7 @@ watch(searchQuery, () => {
               <td
                 class="flex flex-col justify-start md:flex-row gap-2 items-center"
               >
-                <!-- <RouterLink
+                <RouterLink
                 :to="{
                   name: 'view-department',
                   params: { id: department._id },
@@ -133,7 +133,7 @@ watch(searchQuery, () => {
                 class="font-bold text-red-500"
               >
                 Delete
-              </a> -->
+              </a>
               </td>
             </tr>
           </tbody>

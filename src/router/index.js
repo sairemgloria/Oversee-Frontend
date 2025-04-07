@@ -26,6 +26,16 @@ const routes = [
     name: "Department",
     component: () => import("@/views/admin/DepartmentView.vue"),
   },
+  {
+    path: "/view-department/:id",
+    name: "view-department",
+    component: () => import("@/views/admin/ViewSelectedDepartmentView.vue"),
+  },
+  {
+    path: "/edit-department/:id",
+    name: "edit-department",
+    component: () => import("@/views/admin/EditSelectedDepartmentView.vue"),
+  },
   /* Role Section */
   {
     path: "/roles",
@@ -71,7 +81,8 @@ const routes = [
   {
     path: "/edit-department-admin/:id",
     name: "edit-department-admin",
-    component: () => import("@/views/admin/EditSelectedDepartmentAdminView.vue"),
+    component: () =>
+      import("@/views/admin/EditSelectedDepartmentAdminView.vue"),
   },
 
   /* 404 - Page Not Found */
