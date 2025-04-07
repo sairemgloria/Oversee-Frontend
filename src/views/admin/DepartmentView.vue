@@ -139,7 +139,7 @@ watch(searchQuery, () => {
           </tbody>
           <tbody v-else>
             <tr>
-              <td colspan="4" class="text-center py-4">No record found.</td>
+              <td colspan="6" class="text-center py-4">No record found.</td>
             </tr>
           </tbody>
           <tfoot>
