@@ -11,10 +11,10 @@ import LoadingError from "@/components/admin/common/LoadingError.vue";
 const swal = inject("$swal"); // Sweetalert2
 const departmentStore = useDepartmentStore();
 
-// Fetch roles on component mount
+// Fetch departments on component mount
 onMounted(departmentStore.fetchDepartments);
 
-// Ensure the roles list is reactive
+// Ensure the departments list is reactive
 const departments = computed(() => departmentStore.departments);
 
 const deleteDepartment = async (deptId) => {
@@ -34,7 +34,7 @@ const deleteDepartment = async (deptId) => {
 
       // reset pagination correctly
       if (paginatedItems.value.length === 0 && currentPage.value > 1) {
-        currentPage.value -= 1; // go back to the previous page if current one is empty
+        currentPage.value -= 1; // Go back to the previous page if the current one is empty
       }
 
       swal.fire("Deleted!", "The department has been deleted.", "success");
@@ -64,7 +64,6 @@ watch(searchQuery, () => {
       </div>
 
       <Breadcrumb />
-
       <hr class="mt-6" />
     </div>
 

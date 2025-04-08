@@ -191,10 +191,10 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
 
   const deleteDepartment = async (deptId) => {
     try {
-      await api.delete(`/roles/${deptId}`);
+      await api.delete(`/departments/${deptId}`);
 
       departments.value = departments.value.filter(
-        (department) => department_.id !== deptId
+        (department) => department._id !== deptId
       );
 
       await fetchDepartments();
@@ -213,11 +213,12 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
     viewSelectedDepartment,
     fetchDepartments,
     fetchDepartment,
+    createDepartment,
+    updateDepartment,
+    deleteDepartment,
     departmentForm,
     validationErrors,
     clearValidationErrors,
     resetForm,
-    updateDepartment,
-    deleteDepartment,
   };
 });
