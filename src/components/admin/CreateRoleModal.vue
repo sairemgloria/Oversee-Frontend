@@ -43,63 +43,54 @@ const handleCreateRole = async () => {
 </script>
 
 <template>
-  <button class="btn btn-success text-white" @click="openModal">
-    <i class="bx bx-plus bx-sm" />
-    Create Role
-  </button>
+  <div>
+    <button class="btn btn-success text-white" @click="openModal">
+      <i class="bx bx-plus bx-sm" />
+      Create Role
+    </button>
 
-  <dialog id="my_modal_1" class="modal">
-    <div class="modal-box">
-      <h3 class="text-lg font-bold">Create Role</h3>
-      <form @submit.prevent="handleCreateRole" class="p-2">
-        <div class="label">
-          <span class="label-text">Name</span>
-        </div>
-        <input
-          v-model="roleStore.roleForm.name"
-          type="text"
-          placeholder="Type here"
-          class="input input-bordered w-full mb-1"
-        />
-        <p v-if="roleStore.validationErrors.name" class="text-red-500 text-xs">
-          {{ roleStore.validationErrors.name }}
-        </p>
+    <dialog id="my_modal_1" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Create Role</h3>
+        <form @submit.prevent="handleCreateRole" class="p-2">
+          <div class="label">
+            <span class="label-text">Name</span>
+          </div>
+          <input v-model="roleStore.roleForm.name" type="text" placeholder="Type here"
+            class="input input-bordered w-full mb-1" />
+          <p v-if="roleStore.validationErrors.name" class="text-red-500 text-xs">
+            {{ roleStore.validationErrors.name }}
+          </p>
 
-        <div class="label pt-2">
-          <span class="label-text">Code ID</span>
-        </div>
-        <input
-          v-model="roleStore.roleForm.codeId"
-          type="text"
-          placeholder="Type here"
-          class="input input-bordered w-full mb-1"
-        />
-        <p v-if="roleStore.validationErrors.codeId" class="text-red-500 text-xs">
-          {{ roleStore.validationErrors.codeId }}
-        </p>
+          <div class="label pt-2">
+            <span class="label-text">Code ID</span>
+          </div>
+          <input v-model="roleStore.roleForm.codeId" type="text" placeholder="Type here"
+            class="input input-bordered w-full mb-1" />
+          <p v-if="roleStore.validationErrors.codeId" class="text-red-500 text-xs">
+            {{ roleStore.validationErrors.codeId }}
+          </p>
 
-        <div class="label pt-2">
-          <span class="label-text">Department Designation</span>
-        </div>
-        <select
-          v-model="roleStore.roleForm.departmentDesignation"
-          class="select select-bordered w-full mb-1"
-        >
-          <option disabled value="">Select a designation</option>
-          <option>Superadmin</option>
-          <option>IT Department</option>
-        </select>
-        <p v-if="roleStore.validationErrors.departmentDesignation" class="text-red-500 text-xs">
-          {{ roleStore.validationErrors.departmentDesignation }}
-        </p>
+          <div class="label pt-2">
+            <span class="label-text">Department Designation</span>
+          </div>
+          <select v-model="roleStore.roleForm.departmentDesignation" class="select select-bordered w-full mb-1">
+            <option disabled value="">Select a designation</option>
+            <option>Superadmin</option>
+            <option>IT Department</option>
+          </select>
+          <p v-if="roleStore.validationErrors.departmentDesignation" class="text-red-500 text-xs">
+            {{ roleStore.validationErrors.departmentDesignation }}
+          </p>
 
-        <div class="flex justify-end space-x-2 mt-4">
-          <button type="button" class="btn" @click="closeModal">Cancel</button>
-          <button type="submit" class="btn bg-success text-white">
-            Create
-          </button>
-        </div>
-      </form>
-    </div>
-  </dialog>
+          <div class="flex justify-end space-x-2 mt-4">
+            <button type="button" class="btn" @click="closeModal">Cancel</button>
+            <button type="submit" class="btn bg-success text-white">
+              Create
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  </div>
 </template>

@@ -127,36 +127,40 @@ export const useDepartmentStore = defineStore("departmentStore", () => {
     return {
       isValid,
       message: missingFields.length
-        ? `${missingFields.join(", ")} ${
-            missingFields.length > 1 ? "are" : "is"
-          } required.`
+        ? `${missingFields.join(", ")} ${missingFields.length > 1 ? "are" : "is"
+        } required.`
         : "",
     };
   };
 
   /* Function to create new department */
   const createDepartment = async () => {
-    loading.value = true;
-    error.value = null;
+    const validation = validateForm();
 
-    const { isValid, message } = validateForm();
-    if (!isValid) {
-      error.value = message;
-      loading.value = false;
-      return;
+    if (!validation.isValid) {
+      return { success: false, message: validation.message };
     }
 
     try {
-      const response = await api.post("/departments", departmentForm.value);
+      const response = await api.post(`/departments`, departmentForm.value);
       if (response.status === 201 && response.data.success) {
         departments.value.push(response.data.data);
-        resetForm(); // Reset the form after successful creation
+        resetForm();
+        return {
+          success: true,
+          data: response.data.data,
+        };
       } else {
-        error.value = response.data.message;
+        return {
+          success: false,
+          message: response.data.message || "Failed to create department.",
+        };
       }
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Error: Failed to create department.";
+      return {
+        success: false,
+        message: response.data.message || "Error: Failed to create department.",
+      };
     } finally {
       loading.value = false;
     }
